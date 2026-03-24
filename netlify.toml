@@ -1,6 +1,5 @@
 [build]
-  base = "m365costanalyzer"
   functions = "functions"
 
-[functions]
-  directory = "functions"
+  [functions]
+    directory = "functions"
