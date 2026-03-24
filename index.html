@@ -55,27 +55,27 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
 .month-row>div:first-child{flex:1}
 .hidden{display:none!important}
 #extracted-list{max-height:300px;overflow-y:auto}
-.sku-item{display:grid;grid-template-columns:1fr 260px 120px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
+.sku-item{display:grid;grid-template-columns:1fr 260px 130px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
 .sku-item.matched{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05)}
 .sku-item.unmatched{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05)}
 .sku-name{font-size:.85rem;font-weight:600}
-.sku-status{font-size:.75rem;padding:2px 8px;border-radius:12px;text-align:center;font-weight:600}
+.sku-status{font-size:.75rem;padding:3px 10px;border-radius:12px;text-align:center;font-weight:600;white-space:nowrap}
 .sku-status.ok{background:rgba(74,222,128,.15);color:var(--accent2)}
 .sku-status.missing{background:rgba(248,113,113,.15);color:var(--err)}
 .sku-status.warn{background:rgba(245,158,11,.15);color:var(--warn)}
-/* SKU autocomplete */
 .sku-wrapper{position:relative}
 .sku-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:.82rem;outline:none;width:100%;font-family:monospace}
 .sku-input:focus{border-color:var(--accent)}
 .sku-input.filled{border-color:var(--accent2)}
-.sku-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:6px;z-index:999;max-height:200px;overflow-y:auto;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.sku-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:6px;z-index:9999;max-height:220px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .sku-dropdown.open{display:block}
-.sku-option{padding:8px 12px;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.sku-option{padding:8px 12px;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:1px}
 .sku-option:last-child{border-bottom:none}
-.sku-option:hover,.sku-option.active{background:rgba(108,99,255,.15)}
-.sku-option-code{font-family:monospace;font-weight:600;color:var(--accent2)}
-.sku-option-name{color:var(--muted);font-size:.75rem}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}}
+.sku-option:hover{background:rgba(108,99,255,.2)}
+.sku-option-code{font-family:monospace;font-weight:700;color:var(--accent2);font-size:.82rem}
+.sku-option-name{color:var(--muted);font-size:.73rem}
+.sku-tenant-badge{font-size:.65rem;background:rgba(108,99,255,.2);color:var(--accent);padding:1px 5px;border-radius:4px;margin-left:4px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -93,6 +93,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     <div class="step" id="s5"><span class="step-num">5</span> Results</div>
   </div>
 
+  <!-- STEP 1 -->
   <div id="view-connect">
     <div class="card">
       <h2>Connect to Microsoft 365</h2>
@@ -118,6 +119,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
+  <!-- STEP 2 -->
   <div id="view-invoice" class="hidden">
     <div class="card">
       <h2>Upload Reseller Invoice (PDF)</h2>
@@ -151,13 +153,14 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
+  <!-- STEP 3: SKU MAPPER -->
   <div id="view-sku" class="hidden">
     <div class="card">
       <h2>Map License SKUs</h2>
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">
-        Match each invoice line to its Microsoft SKU. Type to search or pick from the dropdown.
+        Match each invoice line to its Microsoft SKU code. Type to search or pick from the dropdown.
         <span style="color:var(--accent2)">● Green = matched in your tenant</span> &nbsp;
-        <span style="color:var(--warn)">● Amber = SKU set but not found in tenant</span> &nbsp;
+        <span style="color:var(--warn)">● Amber = SKU set but not in tenant</span> &nbsp;
         <span style="color:var(--err)">● Red = needs SKU</span>
       </p>
       <div id="sku-mapper-list"></div>
@@ -169,6 +172,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
+  <!-- STEP 4 -->
   <div id="view-month" class="hidden">
     <div class="card">
       <h2>Select Billing Month</h2>
@@ -185,6 +189,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
+  <!-- STEP 5 -->
   <div id="view-results" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
       <div>
@@ -208,7 +213,6 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
 <script>
 var accessToken=null,extractedLines=[],graphUsers=[],_exportData=null,tenantSkus=[];
 
-// Full SKU reference list with friendly names
 var SKU_LIST=[
   {sku:'O365_BUSINESS_ESSENTIALS',name:'Microsoft 365 Business Basic'},
   {sku:'O365_BUSINESS_PREMIUM',name:'Microsoft 365 Business Standard'},
@@ -229,7 +233,7 @@ var SKU_LIST=[
   {sku:'MICROSOFT_TEAMS_AUDIO_CONFERENCING_SELECT_DIAL_OUT',name:'Teams Audio Conferencing'},
   {sku:'MICROSOFT_365_COPILOT',name:'Microsoft 365 Copilot'},
   {sku:'POWER_BI_PRO',name:'Power BI Pro'},
-  {sku:'POWER_BI_STANDARD',name:'Power BI (Free)'},
+  {sku:'POWER_BI_STANDARD',name:'Power BI Free'},
   {sku:'PBI_PREMIUM_PER_USER_DEPT',name:'Power BI Premium Per User'},
   {sku:'VISIOCLIENT',name:'Visio Plan 2'},
   {sku:'VISIOONLINE_PLAN1',name:'Visio Plan 1'},
@@ -243,13 +247,11 @@ var SKU_LIST=[
   {sku:'FLOW_FREE',name:'Power Automate Free'},
   {sku:'FLOW_PER_USER_DEPT',name:'Power Automate Per User'},
   {sku:'POWERAPPS_DEV',name:'PowerApps Developer'},
-  {sku:'POWERAPPS_VIRAL',name:'PowerApps (Viral)'},
-  {sku:'POWER_PAGES_VTRIAL_FOR_MAKERS',name:'Power Pages Trial'},
+  {sku:'POWERAPPS_VIRAL',name:'PowerApps Viral'},
   {sku:'STREAM',name:'Microsoft Stream'},
-  {sku:'AX7_USER_TRIAL',name:'Dynamics 365 Trial'},
   {sku:'MCOSTANDARD',name:'Skype for Business Online Plan 2'},
-  {sku:'DEFENDER_ENDPOINT_P1',name:'Microsoft Defender for Endpoint P1'},
-  {sku:'ATP_ENTERPRISE',name:'Microsoft Defender for Office 365 P1'}
+  {sku:'ATP_ENTERPRISE',name:'Defender for Office 365 P1'},
+  {sku:'DEFENDER_ENDPOINT_P1',name:'Defender for Endpoint P1'}
 ];
 
 function show(id){document.getElementById(id).classList.remove('hidden')}
@@ -272,12 +274,18 @@ async function startLogin(){
   hide('connect-err');
   if(!clientId||!tenantId){show('connect-err');txt('connect-err','Please enter both Client ID and Tenant ID.');return}
   var btn=document.getElementById('signin-btn');btn.disabled=true;btn.textContent='Redirecting…';
-  var pkce=await generatePKCE();var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
-  sessionStorage.setItem('pkce_verifier',pkce.verifier);sessionStorage.setItem('pkce_state',state);
-  sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
-  var params=new URLSearchParams({client_id:clientId,response_type:'code',redirect_uri:REDIRECT_URI,response_mode:'query',
+  var pkce=await generatePKCE();
+  var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
+  sessionStorage.setItem('pkce_verifier',pkce.verifier);
+  sessionStorage.setItem('pkce_state',state);
+  sessionStorage.setItem('client_id',clientId);
+  sessionStorage.setItem('tenant_id',tenantId);
+  var params=new URLSearchParams({
+    client_id:clientId,response_type:'code',redirect_uri:REDIRECT_URI,
+    response_mode:'query',
     scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access',
-    state:state,code_challenge:pkce.challenge,code_challenge_method:'S256'});
+    state:state,code_challenge:pkce.challenge,code_challenge_method:'S256'
+  });
   window.location.href='https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/authorize?'+params.toString();
 }
 
@@ -289,9 +297,16 @@ async function handleRedirect(){
   if(state!==sessionStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
   var verifier=sessionStorage.getItem('pkce_verifier'),clientId=sessionStorage.getItem('client_id'),tenantId=sessionStorage.getItem('tenant_id');
   window.history.replaceState({},document.title,window.location.pathname);
-  var errEl=document.getElementById('connect-err');errEl.className='alert alert-info';errEl.innerHTML='<span class="loader"></span>&nbsp;Completing sign-in…';show('connect-err');
+  var errEl=document.getElementById('connect-err');
+  errEl.className='alert alert-info';
+  errEl.innerHTML='<span class="loader"></span>&nbsp;Completing sign-in…';
+  show('connect-err');
   try{
-    var body=new URLSearchParams({client_id:clientId,grant_type:'authorization_code',code:code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'});
+    var body=new URLSearchParams({
+      client_id:clientId,grant_type:'authorization_code',code:code,
+      redirect_uri:REDIRECT_URI,code_verifier:verifier,
+      scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'
+    });
     var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
     var data=await resp.json();
     if(!resp.ok)throw new Error(data.error_description||data.error||'Token exchange failed');
@@ -299,15 +314,20 @@ async function handleRedirect(){
     if(data.refresh_token)sessionStorage.setItem('refresh_token',data.refresh_token);
     sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
-    txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');show('tenant-badge');
+    txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');
+    show('tenant-badge');
     fetchTenantSkus();
     hide('connect-err');hide('view-connect');show('view-invoice');setStep(2);
-    document.getElementById('clientId').value=clientId;document.getElementById('tenantId').value=tenantId;
+    document.getElementById('clientId').value=clientId;
+    document.getElementById('tenantId').value=tenantId;
   }catch(e){errEl.className='alert alert-err';txt('connect-err','Token exchange failed: '+e.message)}
 }
 
 async function fetchTenantSkus(){
-  try{var r=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});if(r.ok){var d=await r.json();tenantSkus=(d.value||[]).map(function(s){return s.skuPartNumber.toUpperCase()}).filter(Boolean)}}catch(e){}
+  try{
+    var r=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
+    if(r.ok){var d=await r.json();tenantSkus=(d.value||[]).map(function(s){return s.skuPartNumber.toUpperCase()}).filter(Boolean)}
+  }catch(e){}
 }
 
 function loadScript(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -320,11 +340,20 @@ function handlePdfUpload(e){if(e.target.files[0])processPdf(e.target.files[0])}
 
 async function processPdf(file){
   hide('extraction-result');hide('extraction-err');show('pdf-processing');
-  if(typeof pdfjsLib==='undefined'){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}
+  if(typeof pdfjsLib==='undefined'){
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
   var text='';
   try{
-    var ab=await file.arrayBuffer();var pdf=await pdfjsLib.getDocument({data:ab}).promise;
-    for(var i=1;i<=pdf.numPages;i++){var page=await pdf.getPage(i);var tc=await page.getTextContent();text+=tc.items.map(function(it){return it.str}).join(' ')+'\n';document.getElementById('pdf-progress').style.width=Math.round((i/pdf.numPages)*100)+'%'}
+    var ab=await file.arrayBuffer();
+    var pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    for(var i=1;i<=pdf.numPages;i++){
+      var page=await pdf.getPage(i);
+      var tc=await page.getTextContent();
+      text+=tc.items.map(function(it){return it.str}).join(' ')+'\n';
+      document.getElementById('pdf-progress').style.width=Math.round((i/pdf.numPages)*100)+'%';
+    }
   }catch(e){hide('pdf-processing');show('extraction-err');txt('extraction-err','PDF read error: '+e.message);return}
   hide('pdf-processing');show('ai-processing');
   await extractWithAI(text,file.name);
@@ -333,12 +362,17 @@ async function processPdf(file){
 async function extractWithAI(pdfText,fname){
   try{
     var resp=await fetch('/.netlify/functions/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:pdfText})});
-    var data=await resp.json();hide('ai-processing');
+    var data=await resp.json();
+    hide('ai-processing');
     if(!resp.ok)throw new Error(data.error||JSON.stringify(data));
-    var raw='';for(var i=0;i<data.content.length;i++){if(data.content[i].type==='text'){raw=data.content[i].text;break}}
+    var raw='';
+    for(var i=0;i<data.content.length;i++){if(data.content[i].type==='text'){raw=data.content[i].text;break}}
     raw=raw.replace(/```json|```/g,'').trim();
     var lines=JSON.parse(raw);
-    if(!Array.isArray(lines)||lines.length===0){extractedLines=[];renderExtracted();show('extraction-result');txt('extraction-ok','No items found — add manually.');return}
+    if(!Array.isArray(lines)||lines.length===0){
+      extractedLines=[];renderExtracted();show('extraction-result');
+      txt('extraction-ok','No items found — add manually.');return;
+    }
     extractedLines=lines;
     txt('extraction-ok','✓ Extracted '+lines.length+' line item'+(lines.length!==1?'s':'')+' from "'+fname+'"');
     renderExtracted();show('extraction-result');
@@ -353,15 +387,26 @@ function renderExtracted(){
     var div=document.createElement('div');div.className='license-item';
     div.innerHTML='<div style="flex:1;min-width:0">'+
       '<input style="background:transparent;border:none;font-weight:600;font-size:.85rem;color:var(--text);width:100%;padding:0" value="'+esc(l.name||'')+'" onchange="extractedLines['+i+'].name=this.value">'+
-      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
-      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div><button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button></div>';
+      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">'+
+        'SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">'+
+        '&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">'+
+        '&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value">'+
+      '</div></div>'+
+      '<div style="text-align:right;flex-shrink:0;margin-left:12px">'+
+        '<div class="license-price">'+total+'</div>'+
+        '<button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button>'+
+      '</div>';
     el.appendChild(div);
   });
 }
 function removeLine(i){extractedLines.splice(i,1);renderExtracted()}
-function addManualLine(){extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});renderExtracted();show('extraction-result');txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''))}
+function addManualLine(){
+  extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});
+  renderExtracted();show('extraction-result');
+  txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''));
+}
 
-// ── SKU Mapper ────────────────────────────────────────────────────────────────
+// ── SKU Mapper ──────────────────────────────────────────────────────────────
 function goToSkuMapper(){
   if(!extractedLines.length&&!confirm('No lines added. Continue anyway?'))return;
   hide('view-invoice');show('view-sku');setStep(3);
@@ -370,102 +415,100 @@ function goToSkuMapper(){
 
 function getSkuOptions(query){
   var q=(query||'').toUpperCase().trim();
-  // First show tenant SKUs, then all others
-  var tenantMatches=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)>=0&&(s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
-  var otherMatches=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)<0&&(s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
-  // Also add tenant SKUs not in our list
-  var listedSkus=SKU_LIST.map(function(s){return s.sku});
-  var extraTenant=tenantSkus.filter(function(s){return listedSkus.indexOf(s)<0&&s.indexOf(q)>=0}).map(function(s){return{sku:s,name:'(Your tenant)'}});
-  return tenantMatches.concat(extraTenant).concat(otherMatches).slice(0,15);
+  var tenantOnly=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)>=0&&(!q||s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
+  var others=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)<0&&(!q||s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
+  var listed=SKU_LIST.map(function(s){return s.sku});
+  var extraTenant=tenantSkus.filter(function(s){return listed.indexOf(s)<0&&(!q||s.indexOf(q)>=0)}).map(function(s){return{sku:s,name:'(From your tenant)'}});
+  return tenantOnly.concat(extraTenant).concat(others).slice(0,20);
 }
 
 function renderSkuMapper(){
   var el=document.getElementById('sku-mapper-list');el.innerHTML='';
   if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem">No line items.</p>';return}
   extractedLines.forEach(function(l,i){
-    var hasSku=l.sku&&l.sku.trim().length>0;
+    var hasSku=!!(l.sku&&l.sku.trim());
     var inTenant=hasSku&&tenantSkus.indexOf(l.sku.trim().toUpperCase())>=0;
     var statusClass=hasSku?(inTenant?'ok':'warn'):'missing';
     var statusTxt=hasSku?(inTenant?'✓ In tenant':'⚠ Not in tenant'):'✗ Needs SKU';
-    var itemClass=hasSku?'matched':'unmatched';
-    var div=document.createElement('div');div.className='sku-item '+itemClass;div.id='sku-item-'+i;
-
-    var optionsHtml=getSkuOptions(l.sku||'').map(function(o,oi){
+    var div=document.createElement('div');
+    div.className='sku-item '+(hasSku?'matched':'unmatched');
+    div.id='sku-item-'+i;
+    var opts=getSkuOptions(l.sku||'').map(function(o){
       var isTenant=tenantSkus.indexOf(o.sku)>=0;
-      return'<div class="sku-option" data-sku="'+esc(o.sku)+'" data-idx="'+i+'" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
+      return '<div class="sku-option" onmousedown="pickSku('+i+',\''+o.sku.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+        +'<span class="sku-option-code">'+esc(o.sku)+(isTenant?'<span class="sku-tenant-badge">your tenant</span>':'')+'</span>'
+        +'<span class="sku-option-name">'+esc(o.name)+'</span>'
+        +'</div>';
     }).join('');
-
     div.innerHTML=
-      '<div>'+
-        '<div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'+
-        '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+(l.qty?l.qty+' users':''+(l.unitPrice?' · '+fmt(l.unitPrice)+'/user':''))+'</div>'+
-      '</div>'+
-      '<div class="sku-wrapper">'+
-        '<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" placeholder="Search or type SKU…" value="'+esc(l.sku||'')+'" '+
-          'oninput="onSkuInput('+i+',this.value)" onfocus="onSkuFocus('+i+')" onblur="onSkuBlur('+i+')" autocomplete="off">'+
-        '<div class="sku-dropdown" id="sku-dd-'+i+'">'+optionsHtml+'</div>'+
-      '</div>'+
-      '<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
+      '<div>'
+        +'<div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'
+        +'<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'
+          +(l.qty?l.qty+' users':'')
+          +(l.unitPrice?' &nbsp;·&nbsp; '+fmt(l.unitPrice)+'/user':'')
+        +'</div>'
+      +'</div>'
+      +'<div class="sku-wrapper">'
+        +'<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" '
+          +'placeholder="Type to search SKU…" value="'+esc(l.sku||'')+'" '
+          +'oninput="onSkuInput('+i+',this.value)" '
+          +'onfocus="onSkuFocus('+i+')" '
+          +'onblur="onSkuBlur('+i+')" '
+          +'autocomplete="off">'
+        +'<div class="sku-dropdown" id="sku-dd-'+i+'">'+opts+'</div>'
+      +'</div>'
+      +'<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
     el.appendChild(div);
   });
   updateSkuWarning();
 }
 
+function buildDropdownHtml(i,query){
+  var opts=getSkuOptions(query);
+  return opts.map(function(o){
+    var isTenant=tenantSkus.indexOf(o.sku)>=0;
+    return '<div class="sku-option" onmousedown="pickSku('+i+',\''+o.sku.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+      +'<span class="sku-option-code">'+esc(o.sku)+(isTenant?'<span class="sku-tenant-badge">your tenant</span>':'')+'</span>'
+      +'<span class="sku-option-name">'+esc(o.name)+'</span>'
+      +'</div>';
+  }).join('');
+}
+
 function onSkuInput(i,val){
   extractedLines[i].sku=val.trim();
-  // Update dropdown options
   var dd=document.getElementById('sku-dd-'+i);
-  var opts=getSkuOptions(val);
-  dd.innerHTML=opts.map(function(o){
-    var isTenant=tenantSkus.indexOf(o.sku)>=0;
-    return'<div class="sku-option" data-sku="'+esc(o.sku)+'" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
-  }).join('');
+  dd.innerHTML=buildDropdownHtml(i,val);
   dd.classList.add('open');
   updateSkuStatus(i,val.trim());
 }
-
 function onSkuFocus(i){
-  var dd=document.getElementById('sku-dd-'+i);
   var val=document.getElementById('sku-inp-'+i).value;
-  var opts=getSkuOptions(val);
-  dd.innerHTML=opts.map(function(o){
-    var isTenant=tenantSkus.indexOf(o.sku)>=0;
-    return'<div class="sku-option" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
-  }).join('');
-  if(opts.length)dd.classList.add('open');
+  var dd=document.getElementById('sku-dd-'+i);
+  dd.innerHTML=buildDropdownHtml(i,val);
+  dd.classList.add('open');
 }
-
 function onSkuBlur(i){
-  setTimeout(function(){
-    var dd=document.getElementById('sku-dd-'+i);
-    if(dd)dd.classList.remove('open');
-  },200);
+  setTimeout(function(){var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open')},200);
 }
-
 function pickSku(i,sku){
   extractedLines[i].sku=sku;
-  var inp=document.getElementById('sku-inp-'+i);
-  if(inp)inp.value=sku;
-  var dd=document.getElementById('sku-dd-'+i);
-  if(dd)dd.classList.remove('open');
+  var inp=document.getElementById('sku-inp-'+i);if(inp)inp.value=sku;
+  var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open');
   updateSkuStatus(i,sku);
-  updateSkuWarning();
 }
-
 function updateSkuStatus(i,val){
-  var hasSku=val&&val.length>0;
+  var hasSku=!!(val&&val.length);
   var inTenant=hasSku&&tenantSkus.indexOf(val.toUpperCase())>=0;
   var item=document.getElementById('sku-item-'+i);
   var status=document.getElementById('sku-status-'+i);
-  var input=document.getElementById('sku-inp-'+i);
+  var inp=document.getElementById('sku-inp-'+i);
   if(!item)return;
   item.className='sku-item '+(hasSku?'matched':'unmatched');
   status.className='sku-status '+(hasSku?(inTenant?'ok':'warn'):'missing');
   status.textContent=hasSku?(inTenant?'✓ In tenant':'⚠ Not in tenant'):'✗ Needs SKU';
-  if(input)input.className='sku-input'+(hasSku?' filled':'');
+  if(inp)inp.className='sku-input'+(hasSku?' filled':'');
   updateSkuWarning();
 }
-
 function updateSkuWarning(){
   var missing=extractedLines.filter(function(l){return!l.sku||!l.sku.trim()}).length;
   txt('sku-warn',missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU':'');
@@ -477,10 +520,12 @@ function goToStep4(){
   document.getElementById('billing-month').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
 }
 
+// ── Analyse ─────────────────────────────────────────────────────────────────
 async function runAnalysis(){
   var monthVal=document.getElementById('billing-month').value;
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
-  hide('month-err');show('month-progress');document.getElementById('analyse-btn').disabled=true;
+  hide('month-err');show('month-progress');
+  document.getElementById('analyse-btn').disabled=true;
   var p=monthVal.split('-').map(Number),yr=p[0],mo=p[1];
   var monthStart=new Date(yr,mo-1,1),monthEnd=new Date(yr,mo,0,23,59,59);
   var daysInMonth=monthEnd.getDate();
@@ -489,7 +534,10 @@ async function runAnalysis(){
   catch(e){hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e.message);return}
   setProg('Calculating costs…',70);
   var skuMap={};
-  extractedLines.forEach(function(l){var u=l.unitPrice||(l.qty&&l.totalPrice?l.totalPrice/l.qty:0);if(l.sku)skuMap[l.sku.toUpperCase().trim()]=u});
+  extractedLines.forEach(function(l){
+    var u=l.unitPrice||(l.qty&&l.totalPrice?l.totalPrice/l.qty:0);
+    if(l.sku)skuMap[l.sku.toUpperCase().trim()]=u;
+  });
   var invoiceTotal=extractedLines.reduce(function(s,l){return s+(l.totalPrice||(l.qty*l.unitPrice)||0)},0);
   var deptMap={},unmatched={};
   graphUsers.forEach(function(u){
@@ -507,7 +555,9 @@ async function runAnalysis(){
       userFull+=unitP;userPro+=unitP*proRata;
       var key=lic.skuPartNumber||lic.skuId||'Unknown';
       if(!deptMap[dept].licenses[key])deptMap[dept].licenses[key]={name:key,users:0,fullCost:0,proRatedCost:0,unitPrice:unitP};
-      deptMap[dept].licenses[key].users++;deptMap[dept].licenses[key].fullCost+=unitP;deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
+      deptMap[dept].licenses[key].users++;
+      deptMap[dept].licenses[key].fullCost+=unitP;
+      deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
     });
     deptMap[dept].users.push({name:u.displayName,activeDays:activeDays,isPartial:isPartial,fullCost:userFull,proRatedCost:userPro});
     deptMap[dept].fullCost+=userFull;deptMap[dept].proRatedCost+=userPro;
@@ -516,18 +566,26 @@ async function runAnalysis(){
   renderResults(deptMap,unmatched,monthVal,invoiceTotal);
   document.getElementById('analyse-btn').disabled=false;
 }
-
 function setProg(msg,pct){txt('prog-msg',msg);document.getElementById('prog-bar').style.width=pct+'%'}
 
 async function fetchAllUsers(){
   var url='https://graph.microsoft.com/v1.0/users?$select=id,displayName,department,createdDateTime,assignedLicenses&$top=999';
   var users=[];
-  while(url){var r=await fetch(url,{headers:{Authorization:'Bearer '+accessToken}});if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||r.status)}var d=await r.json();users=users.concat(d.value||[]);url=d['@odata.nextLink']||null}
+  while(url){
+    var r=await fetch(url,{headers:{Authorization:'Bearer '+accessToken}});
+    if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||r.status)}
+    var d=await r.json();users=users.concat(d.value||[]);url=d['@odata.nextLink']||null;
+  }
   var sr=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
-  if(sr.ok){var sd=await sr.json();var map={};(sd.value||[]).forEach(function(s){map[s.skuId]=s.skuPartNumber});users.forEach(function(u){(u.assignedLicenses||[]).forEach(function(l){if(!l.skuPartNumber&&map[l.skuId])l.skuPartNumber=map[l.skuId]})})}
+  if(sr.ok){
+    var sd=await sr.json();var map={};
+    (sd.value||[]).forEach(function(s){map[s.skuId]=s.skuPartNumber});
+    users.forEach(function(u){(u.assignedLicenses||[]).forEach(function(l){if(!l.skuPartNumber&&map[l.skuId])l.skuPartNumber=map[l.skuId]})});
+  }
   return users;
 }
 
+// ── Results ──────────────────────────────────────────────────────────────────
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   hide('month-progress');hide('view-month');show('view-results');setStep(5);
   var p=monthVal.split('-').map(Number);
@@ -538,37 +596,56 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   var tPro=depts.reduce(function(s,d){return s+d[1].proRatedCost},0);
   var tUsers=depts.reduce(function(s,d){return s+d[1].users.length},0);
   var tPartial=depts.reduce(function(s,d){return s+d[1].users.filter(function(u){return u.isPartial}).length},0);
-  document.getElementById('summary-grid').innerHTML=sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
+  document.getElementById('summary-grid').innerHTML=
+    sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+
+    sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+
+    sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
   var tbody=document.getElementById('results-tbody');tbody.innerHTML='';
   depts.forEach(function(entry,di){
-    var dept=entry[0],d=entry[1];var partial=d.users.filter(function(u){return u.isPartial}).length;
+    var dept=entry[0],d=entry[1];
+    var partial=d.users.filter(function(u){return u.isPartial}).length;
     var tr=document.createElement('tr');tr.className='dept-row';
-    tr.innerHTML='<td>'+esc(dept)+'</td><td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+
-      '</td><td>'+fmt(d.fullCost)+'</td><td><strong>'+fmt(d.proRatedCost)+'</strong></td>'+
-      '<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
+    tr.innerHTML='<td>'+esc(dept)+'</td>'
+      +'<td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+'</td>'
+      +'<td>'+fmt(d.fullCost)+'</td>'
+      +'<td><strong>'+fmt(d.proRatedCost)+'</strong></td>'
+      +'<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
     tbody.appendChild(tr);
     var sub=document.createElement('tr');sub.id='sub-'+di;sub.className='hidden';
-    var licRows=Object.values(d.licenses).map(function(l){return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>'}).join('');
+    var licRows=Object.values(d.licenses).map(function(l){
+      return '<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td>'
+        +'<td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td>'
+        +'<td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
+    }).join('');
     sub.innerHTML='<td colspan="5" style="padding:0"><table style="width:100%"><tbody>'+licRows+'</tbody></table></td>';
     tbody.appendChild(sub);
   });
   var unmatchedKeys=Object.keys(unmatched);
   if(unmatchedKeys.length){
     show('unmatched-warn');
-    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide('view-results');show('view-sku');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
-  }else hide('unmatched-warn');
+    document.getElementById('unmatched-warn').innerHTML=
+      '⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. '
+      +'<button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button>'
+      +'<br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+  }else{hide('unmatched-warn')}
   _exportData={depts:depts,monthName:monthName};
 }
-
 function toggleSub(i,btn){var h=document.getElementById('sub-'+i).classList.toggle('hidden');btn.textContent=h?'▸ Details':'▾ Hide'}
 function exportCsv(){
   if(!_exportData)return;
   var csv='Department,Users,Full Month Cost,Pro-rated Cost\n';
-  _exportData.depts.forEach(function(e){var dept=e[0],d=e[1];csv+='"'+dept+'",'+d.users.length+','+d.fullCost.toFixed(2)+','+d.proRatedCost.toFixed(2)+'\n';Object.values(d.licenses).forEach(function(l){csv+='"  \u21b3 '+l.name+'",'+l.users+','+l.fullCost.toFixed(2)+','+l.proRatedCost.toFixed(2)+'\n'})});
-  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';a.click();
+  _exportData.depts.forEach(function(e){
+    var dept=e[0],d=e[1];
+    csv+='"'+dept+'",'+d.users.length+','+d.fullCost.toFixed(2)+','+d.proRatedCost.toFixed(2)+'\n';
+    Object.values(d.licenses).forEach(function(l){csv+='"  \u21b3 '+l.name+'",'+l.users+','+l.fullCost.toFixed(2)+','+l.proRatedCost.toFixed(2)+'\n'});
+  });
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';
+  a.click();
 }
 function goBack(){hide('view-results');show('view-month');setStep(4)}
 handleRedirect();
 </script>
 </body>
-  </html>
+</html>
