@@ -6,15 +6,9 @@
 <title>M365 Billing Analyzer</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;
-  --accent:#6c63ff;--accent2:#4ade80;--text:#e8eaf6;--muted:#8b8fa8;
-  --warn:#f59e0b;--err:#f87171;--radius:12px;
-}
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c63ff;--accent2:#4ade80;--text:#e8eaf6;--muted:#8b8fa8;--warn:#f59e0b;--err:#f87171;--radius:12px}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-h1{font-size:1.4rem;font-weight:700}
-h2{font-size:1.05rem;font-weight:600;margin-bottom:12px}
-h3{font-size:.9rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+h1{font-size:1.4rem;font-weight:700}h2{font-size:1.05rem;font-weight:600;margin-bottom:12px}h3{font-size:.9rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
 .logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 .badge{font-size:.7rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;margin-left:auto}
@@ -28,15 +22,11 @@ h3{font-size:.9rem;font-weight:600;color:var(--muted);text-transform:uppercase;l
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:500}
 input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.9rem;outline:none;transition:border .2s}
-input:focus{border-color:var(--accent)}
-input::placeholder{color:var(--muted)}
+input:focus{border-color:var(--accent)}input::placeholder{color:var(--muted)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#5a52e0}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-.btn-sm{padding:6px 14px;font-size:.8rem}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5a52e0}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:6px 14px;font-size:.8rem}.btn:disabled{opacity:.45;cursor:not-allowed}
 .drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(108,99,255,.05)}
 .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -48,15 +38,13 @@ input::placeholder{color:var(--muted)}
 .alert-info{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);color:var(--accent)}
 table{width:100%;border-collapse:collapse;font-size:.85rem}
 th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)}
-td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}
-tr:hover td{background:rgba(108,99,255,.04)}
+td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{background:rgba(108,99,255,.04)}
 .dept-row td:first-child{font-weight:600}
 .expand-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:.8rem;padding:2px 8px}
 .sub-row td{color:var(--muted);font-size:.8rem;background:rgba(0,0,0,.15)}
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .summary-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px}
-.summary-val{font-size:1.5rem;font-weight:700;margin-bottom:2px}
-.summary-label{font-size:.75rem;color:var(--muted)}
+.summary-val{font-size:1.5rem;font-weight:700;margin-bottom:2px}.summary-label{font-size:.75rem;color:var(--muted)}
 .loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(108,99,255,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .progress{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:8px}
@@ -67,26 +55,33 @@ tr:hover td{background:rgba(108,99,255,.04)}
 .month-row>div:first-child{flex:1}
 .hidden{display:none!important}
 #extracted-list{max-height:300px;overflow-y:auto}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}}
+/* SKU mapper */
+.sku-item{display:grid;grid-template-columns:1fr 180px 100px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
+.sku-item.matched{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05)}
+.sku-item.unmatched{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05)}
+.sku-name{font-size:.85rem;font-weight:600}
+.sku-status{font-size:.75rem;padding:2px 8px;border-radius:12px;text-align:center;font-weight:600}
+.sku-status.ok{background:rgba(74,222,128,.15);color:var(--accent2)}
+.sku-status.missing{background:rgba(248,113,113,.15);color:var(--err)}
+.sku-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.82rem;outline:none;width:100%}
+.sku-input:focus{border-color:var(--accent)}
+.sku-input.filled{border-color:var(--accent2)}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="logo">⬡</div>
-  <div>
-    <h1>M365 Billing Analyzer</h1>
-    <div style="font-size:.75rem;color:var(--muted)">Department cost breakdown from reseller invoice</div>
-  </div>
+  <div><h1>M365 Billing Analyzer</h1><div style="font-size:.75rem;color:var(--muted)">Department cost breakdown from reseller invoice</div></div>
   <div class="badge hidden" id="tenant-badge"></div>
 </div>
-
 <div class="container">
   <div class="steps">
     <div class="step active" id="s1"><span class="step-num">1</span> Connect M365</div>
     <div class="step" id="s2"><span class="step-num">2</span> Upload Invoice</div>
-    <div class="step" id="s3"><span class="step-num">3</span> Select Month</div>
-    <div class="step" id="s4"><span class="step-num">4</span> Results</div>
+    <div class="step" id="s3"><span class="step-num">3</span> Map SKUs</div>
+    <div class="step" id="s4"><span class="step-num">4</span> Select Month</div>
+    <div class="step" id="s5"><span class="step-num">5</span> Results</div>
   </div>
 
   <!-- STEP 1 -->
@@ -121,7 +116,7 @@ tr:hover td{background:rgba(108,99,255,.04)}
   <div id="view-invoice" class="hidden">
     <div class="card">
       <h2>Upload Reseller Invoice (PDF)</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">AI will extract license names, quantities and unit prices automatically. You can edit any line afterwards.</p>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">AI will extract license names, quantities and unit prices automatically.</p>
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfUpload(event)">
         <div style="font-size:2rem;margin-bottom:8px">📄</div>
@@ -143,7 +138,7 @@ tr:hover td{background:rgba(108,99,255,.04)}
         </div>
         <div id="extracted-list"></div>
         <div style="margin-top:16px;display:flex;gap:10px">
-          <button class="btn btn-primary" onclick="goToStep3()">Continue →</button>
+          <button class="btn btn-primary" onclick="goToSkuMapper()">Continue → Map SKUs</button>
           <button class="btn btn-secondary btn-sm" onclick="document.getElementById('pdf-input').click()">Re-upload</button>
         </div>
       </div>
@@ -151,11 +146,54 @@ tr:hover td{background:rgba(108,99,255,.04)}
     </div>
   </div>
 
-  <!-- STEP 3 -->
+  <!-- STEP 3: SKU MAPPER -->
+  <div id="view-sku" class="hidden">
+    <div class="card">
+      <h2>Map License SKUs</h2>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">
+        Match each invoice line item to its Microsoft SKU code. <span style="color:var(--accent2)">Green = matched</span>, <span style="color:var(--err)">Red = needs a SKU entered</span>. SKU codes must match exactly what Microsoft uses (e.g. <code>SPE_E3</code>, <code>O365_BUSINESS_ESSENTIALS</code>).
+      </p>
+      <div id="sku-mapper-list"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="goToStep4()">Continue → Select Month</button>
+        <button class="btn btn-secondary btn-sm" onclick="hide('view-sku');show('view-invoice');setStep(2)">← Back</button>
+        <span id="sku-warn" style="font-size:.8rem;color:var(--warn)"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Common SKU Reference</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px;font-size:.78rem;color:var(--muted)">
+        <div>M365 Business Basic → <code>O365_BUSINESS_ESSENTIALS</code></div>
+        <div>M365 Business Standard → <code>O365_BUSINESS_PREMIUM</code></div>
+        <div>M365 Business Premium → <code>SPE_BUSINESS_PREMIUM</code></div>
+        <div>M365 Apps for Business → <code>O365_BUSINESS</code></div>
+        <div>Office 365 E1 → <code>STANDARDPACK</code></div>
+        <div>Office 365 E3 → <code>ENTERPRISEPACK</code></div>
+        <div>Office 365 E5 → <code>ENTERPRISEPREMIUM</code></div>
+        <div>M365 E3 → <code>SPE_E3</code></div>
+        <div>M365 E5 → <code>SPE_E5</code></div>
+        <div>Exchange Online Plan 1 → <code>EXCHANGESTANDARD</code></div>
+        <div>Exchange Online Plan 2 → <code>EXCHANGEENTERPRISE</code></div>
+        <div>Teams Phone Standard → <code>MCOEV</code></div>
+        <div>Teams Phone + Calling → <code>MCOTEAMS_ESSENTIALS</code></div>
+        <div>Teams Premium → <code>MICROSOFT_TEAMS_PREMIUM</code></div>
+        <div>Power BI Pro → <code>POWER_BI_PRO</code></div>
+        <div>Power BI Premium/User → <code>PBI_PREMIUM_PER_USER_DEPT</code></div>
+        <div>Visio Plan 2 → <code>VISIOCLIENT</code></div>
+        <div>Project Plan 3 → <code>PROJECTPROFESSIONAL</code></div>
+        <div>Project Plan 5 → <code>PROJECTPREMIUM</code></div>
+        <div>M365 Copilot → <code>MICROSOFT_365_COPILOT</code></div>
+        <div>Intune → <code>INTUNE_A</code></div>
+        <div>EMS E3 → <code>EMS</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
   <div id="view-month" class="hidden">
     <div class="card">
       <h2>Select Billing Month</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Users active for only part of the month will have their cost pro-rated based on their account creation date in Microsoft 365.</p>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Users active for only part of the month will have their cost pro-rated based on their account creation date.</p>
       <div class="month-row">
         <div><label>Billing Month</label><input type="month" id="billing-month"></div>
         <div><button class="btn btn-primary" id="analyse-btn" onclick="runAnalysis()">Analyse →</button></div>
@@ -168,7 +206,7 @@ tr:hover td{background:rgba(108,99,255,.04)}
     </div>
   </div>
 
-  <!-- STEP 4 -->
+  <!-- STEP 5 -->
   <div id="view-results" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
       <div>
@@ -182,101 +220,77 @@ tr:hover td{background:rgba(108,99,255,.04)}
     </div>
     <div class="summary-grid" id="summary-grid"></div>
     <div class="card" style="padding:0;overflow:hidden">
-      <table>
-        <thead><tr><th>Department</th><th>Users</th><th>Full Month</th><th>Pro-rated</th><th></th></tr></thead>
-        <tbody id="results-tbody"></tbody>
-      </table>
+      <table><thead><tr><th>Department</th><th>Users</th><th>Full Month</th><th>Pro-rated</th><th></th></tr></thead>
+      <tbody id="results-tbody"></tbody></table>
     </div>
     <div id="unmatched-warn" class="alert alert-warn hidden" style="margin-top:16px"></div>
   </div>
 </div>
 
 <script>
-var accessToken=null,extractedLines=[],graphUsers=[],_exportData=null;
+var accessToken=null,extractedLines=[],graphUsers=[],_exportData=null,tenantSkus=[];
 function show(id){document.getElementById(id).classList.remove('hidden')}
 function hide(id){document.getElementById(id).classList.add('hidden')}
 function txt(id,v){document.getElementById(id).textContent=v}
 function fmt(n){return'$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function sc(val,label){return'<div class="summary-card"><div class="summary-val">'+val+'</div><div class="summary-label">'+label+'</div></div>'}
-function setStep(n){for(var i=1;i<=4;i++){var el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');else if(i===n)el.classList.add('active')}}
+function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');else if(i===n)el.classList.add('active')}}
 
 var REDIRECT_URI=window.location.href.split('?')[0].split('#')[0];
 document.getElementById('redirect-uri-val').textContent=REDIRECT_URI;
 
 function b64url(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
-async function generatePKCE(){
-  var v=b64url(crypto.getRandomValues(new Uint8Array(32)));
-  var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));
-  return{verifier:v,challenge:b64url(d)};
-}
+async function generatePKCE(){var v=b64url(crypto.getRandomValues(new Uint8Array(32)));var d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return{verifier:v,challenge:b64url(d)}}
 
 async function startLogin(){
   var clientId=document.getElementById('clientId').value.trim();
   var tenantId=document.getElementById('tenantId').value.trim();
   hide('connect-err');
   if(!clientId||!tenantId){show('connect-err');txt('connect-err','Please enter both Client ID and Tenant ID.');return}
-  var btn=document.getElementById('signin-btn');
-  btn.disabled=true;btn.textContent='Redirecting…';
-  var pkce=await generatePKCE();
-  var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
-  sessionStorage.setItem('pkce_verifier',pkce.verifier);
-  sessionStorage.setItem('pkce_state',state);
-  sessionStorage.setItem('client_id',clientId);
-  sessionStorage.setItem('tenant_id',tenantId);
-  var params=new URLSearchParams({
-    client_id:clientId,response_type:'code',redirect_uri:REDIRECT_URI,
-    response_mode:'query',
+  var btn=document.getElementById('signin-btn');btn.disabled=true;btn.textContent='Redirecting…';
+  var pkce=await generatePKCE();var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
+  sessionStorage.setItem('pkce_verifier',pkce.verifier);sessionStorage.setItem('pkce_state',state);
+  sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
+  var params=new URLSearchParams({client_id:clientId,response_type:'code',redirect_uri:REDIRECT_URI,response_mode:'query',
     scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access',
-    state:state,code_challenge:pkce.challenge,code_challenge_method:'S256'
-  });
+    state:state,code_challenge:pkce.challenge,code_challenge_method:'S256'});
   window.location.href='https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/authorize?'+params.toString();
 }
 
 async function handleRedirect(){
   var params=new URLSearchParams(window.location.search);
   var code=params.get('code'),state=params.get('state'),error=params.get('error');
-  if(error){
-    show('connect-err');txt('connect-err','Sign-in error: '+decodeURIComponent(params.get('error_description')||error));
-    window.history.replaceState({},document.title,window.location.pathname);return;
-  }
+  if(error){show('connect-err');txt('connect-err','Sign-in error: '+decodeURIComponent(params.get('error_description')||error));window.history.replaceState({},document.title,window.location.pathname);return}
   if(!code)return;
-  if(state!==sessionStorage.getItem('pkce_state')){
-    show('connect-err');txt('connect-err','State mismatch — please try again.');
-    window.history.replaceState({},document.title,window.location.pathname);return;
-  }
-  var verifier=sessionStorage.getItem('pkce_verifier');
-  var clientId=sessionStorage.getItem('client_id');
-  var tenantId=sessionStorage.getItem('tenant_id');
+  if(state!==sessionStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
+  var verifier=sessionStorage.getItem('pkce_verifier'),clientId=sessionStorage.getItem('client_id'),tenantId=sessionStorage.getItem('tenant_id');
   window.history.replaceState({},document.title,window.location.pathname);
-  var errEl=document.getElementById('connect-err');
-  errEl.className='alert alert-info';
-  errEl.innerHTML='<span class="loader"></span>&nbsp;Completing sign-in…';
-  show('connect-err');
+  var errEl=document.getElementById('connect-err');errEl.className='alert alert-info';errEl.innerHTML='<span class="loader"></span>&nbsp;Completing sign-in…';show('connect-err');
   try{
-    var body=new URLSearchParams({
-      client_id:clientId,grant_type:'authorization_code',code:code,
-      redirect_uri:REDIRECT_URI,code_verifier:verifier,
-      scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'
-    });
-    var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{
-      method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()
-    });
+    var body=new URLSearchParams({client_id:clientId,grant_type:'authorization_code',code:code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'});
+    var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
     var data=await resp.json();
     if(!resp.ok)throw new Error(data.error_description||data.error||'Token exchange failed');
     accessToken=data.access_token;
     if(data.refresh_token)sessionStorage.setItem('refresh_token',data.refresh_token);
+    sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
-    txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');
-    show('tenant-badge');hide('connect-err');hide('view-connect');show('view-invoice');setStep(2);
-    document.getElementById('clientId').value=clientId;
-    document.getElementById('tenantId').value=tenantId;
-  }catch(e){
-    errEl.className='alert alert-err';txt('connect-err','Token exchange failed: '+e.message);
-  }
+    txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');show('tenant-badge');
+    // Pre-fetch tenant SKUs in background
+    fetchTenantSkus();
+    hide('connect-err');hide('view-connect');show('view-invoice');setStep(2);
+    document.getElementById('clientId').value=clientId;document.getElementById('tenantId').value=tenantId;
+  }catch(e){errEl.className='alert alert-err';txt('connect-err','Token exchange failed: '+e.message)}
 }
 
-// PDF.js loaded on demand
+async function fetchTenantSkus(){
+  try{
+    var r=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
+    if(r.ok){var d=await r.json();tenantSkus=(d.value||[]).map(function(s){return s.skuPartNumber}).filter(Boolean)}
+  }catch(e){}
+}
+
 function loadScript(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 
 var dz=document.getElementById('drop-zone');
@@ -287,20 +301,11 @@ function handlePdfUpload(e){if(e.target.files[0])processPdf(e.target.files[0])}
 
 async function processPdf(file){
   hide('extraction-result');hide('extraction-err');show('pdf-processing');
-  if(typeof pdfjsLib==='undefined'){
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  }
+  if(typeof pdfjsLib==='undefined'){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'}
   var text='';
   try{
-    var ab=await file.arrayBuffer();
-    var pdf=await pdfjsLib.getDocument({data:ab}).promise;
-    for(var i=1;i<=pdf.numPages;i++){
-      var page=await pdf.getPage(i);
-      var tc=await page.getTextContent();
-      text+=tc.items.map(function(it){return it.str}).join(' ')+'\n';
-      document.getElementById('pdf-progress').style.width=Math.round((i/pdf.numPages)*100)+'%';
-    }
+    var ab=await file.arrayBuffer();var pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    for(var i=1;i<=pdf.numPages;i++){var page=await pdf.getPage(i);var tc=await page.getTextContent();text+=tc.items.map(function(it){return it.str}).join(' ')+'\n';document.getElementById('pdf-progress').style.width=Math.round((i/pdf.numPages)*100)+'%'}
   }catch(e){hide('pdf-processing');show('extraction-err');txt('extraction-err','PDF read error: '+e.message);return}
   hide('pdf-processing');show('ai-processing');
   await extractWithAI(text,file.name);
@@ -308,64 +313,101 @@ async function processPdf(file){
 
 async function extractWithAI(pdfText,fname){
   try{
-    // Call our Netlify function proxy — no CORS issues
-    var resp=await fetch('/.netlify/functions/extract',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({text:pdfText})
-    });
-    var data=await resp.json();
-    hide('ai-processing');
+    var resp=await fetch('/.netlify/functions/extract',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:pdfText})});
+    var data=await resp.json();hide('ai-processing');
     if(!resp.ok)throw new Error(data.error||JSON.stringify(data));
-    var raw='';
-    for(var i=0;i<data.content.length;i++){if(data.content[i].type==='text'){raw=data.content[i].text;break}}
+    var raw='';for(var i=0;i<data.content.length;i++){if(data.content[i].type==='text'){raw=data.content[i].text;break}}
     raw=raw.replace(/```json|```/g,'').trim();
     var lines=JSON.parse(raw);
-    if(!Array.isArray(lines)||lines.length===0){
-      extractedLines=[];renderExtracted();show('extraction-result');
-      txt('extraction-ok','No items found automatically — add them manually.');return;
-    }
+    if(!Array.isArray(lines)||lines.length===0){extractedLines=[];renderExtracted();show('extraction-result');txt('extraction-ok','No items found — add manually.');return}
     extractedLines=lines;
     txt('extraction-ok','✓ Extracted '+lines.length+' line item'+(lines.length!==1?'s':'')+' from "'+fname+'"');
     renderExtracted();show('extraction-result');
-  }catch(e){
-    hide('ai-processing');show('extraction-err');
-    txt('extraction-err','Extraction failed: '+e.message);
-  }
+  }catch(e){hide('ai-processing');show('extraction-err');txt('extraction-err','Extraction failed: '+e.message)}
 }
 
 function renderExtracted(){
   var el=document.getElementById('extracted-list');el.innerHTML='';
-  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem;padding:8px">No items yet. Click "+ Add line" to add manually.</p>';return}
+  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem;padding:8px">No items yet.</p>';return}
   extractedLines.forEach(function(l,i){
     var total=l.totalPrice!=null?fmt(l.totalPrice):(l.qty&&l.unitPrice?fmt(l.qty*l.unitPrice):'—');
     var div=document.createElement('div');div.className='license-item';
     div.innerHTML='<div style="flex:1;min-width:0">'+
       '<input style="background:transparent;border:none;font-weight:600;font-size:.85rem;color:var(--text);width:100%;padding:0" value="'+esc(l.name||'')+'" onchange="extractedLines['+i+'].name=this.value">'+
-      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:130px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
-      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div>'+
-      '<button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button></div>';
+      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
+      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div><button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button></div>';
     el.appendChild(div);
   });
 }
 function removeLine(i){extractedLines.splice(i,1);renderExtracted()}
-function addManualLine(){
-  extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});
-  renderExtracted();show('extraction-result');
-  txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''));
-}
-function goToStep3(){
+function addManualLine(){extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});renderExtracted();show('extraction-result');txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''))}
+
+// ── Step 3: SKU Mapper ────────────────────────────────────────────────────────
+function goToSkuMapper(){
   if(!extractedLines.length&&!confirm('No lines added. Continue anyway?'))return;
-  hide('view-invoice');show('view-month');setStep(3);
+  hide('view-invoice');show('view-sku');setStep(3);
+  renderSkuMapper();
+}
+
+function renderSkuMapper(){
+  var el=document.getElementById('sku-mapper-list');el.innerHTML='';
+  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem">No line items. Go back and add some.</p>';return}
+  extractedLines.forEach(function(l,i){
+    var hasSku=l.sku&&l.sku.trim().length>0;
+    var inTenant=hasSku&&tenantSkus.indexOf(l.sku.trim().toUpperCase())>=0;
+    var statusClass=hasSku?'ok':'missing';
+    var statusTxt=hasSku?(inTenant?'✓ Matched in tenant':'⚠ SKU set — not in tenant'):'✗ Needs SKU';
+    var itemClass=hasSku?'matched':'unmatched';
+    var div=document.createElement('div');div.className='sku-item '+itemClass;div.id='sku-item-'+i;
+    div.innerHTML=
+      '<div>'+
+        '<div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'+
+        '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+
+          (l.qty?l.qty+' users × ':'')+
+          (l.unitPrice?fmt(l.unitPrice)+'/user':'—')+
+          (l.totalPrice?' = '+fmt(l.totalPrice):'')+
+        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<input class="sku-input'+(hasSku?' filled':'')+'" placeholder="Enter SKU code" value="'+esc(l.sku||'')+'" onchange="updateSku('+i+',this.value)" oninput="updateSku('+i+',this.value)">'+
+      '</div>'+
+      '<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
+    el.appendChild(div);
+  });
+  updateSkuWarning();
+}
+
+function updateSku(i,val){
+  extractedLines[i].sku=val.trim();
+  var hasSku=val.trim().length>0;
+  var inTenant=hasSku&&tenantSkus.indexOf(val.trim().toUpperCase())>=0;
+  var item=document.getElementById('sku-item-'+i);
+  var status=document.getElementById('sku-status-'+i);
+  var input=item.querySelector('.sku-input');
+  item.className='sku-item '+(hasSku?'matched':'unmatched');
+  status.className='sku-status '+(hasSku?'ok':'missing');
+  status.textContent=hasSku?(inTenant?'✓ Matched in tenant':'⚠ SKU set — not in tenant'):'✗ Needs SKU';
+  input.className='sku-input'+(hasSku?' filled':'');
+  updateSkuWarning();
+}
+
+function updateSkuWarning(){
+  var missing=extractedLines.filter(function(l){return!l.sku||!l.sku.trim()}).length;
+  var warnEl=document.getElementById('sku-warn');
+  warnEl.textContent=missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU — they will show as $0.00':'';
+}
+
+function goToStep4(){
+  hide('view-sku');show('view-month');setStep(4);
   var now=new Date();
   document.getElementById('billing-month').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
 }
 
+// ── Step 4: Analyse ───────────────────────────────────────────────────────────
 async function runAnalysis(){
   var monthVal=document.getElementById('billing-month').value;
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
-  hide('month-err');show('month-progress');
-  document.getElementById('analyse-btn').disabled=true;
+  hide('month-err');show('month-progress');document.getElementById('analyse-btn').disabled=true;
   var p=monthVal.split('-').map(Number),yr=p[0],mo=p[1];
   var monthStart=new Date(yr,mo-1,1),monthEnd=new Date(yr,mo,0,23,59,59);
   var daysInMonth=monthEnd.getDate();
@@ -392,9 +434,7 @@ async function runAnalysis(){
       userFull+=unitP;userPro+=unitP*proRata;
       var key=lic.skuPartNumber||lic.skuId||'Unknown';
       if(!deptMap[dept].licenses[key])deptMap[dept].licenses[key]={name:key,users:0,fullCost:0,proRatedCost:0,unitPrice:unitP};
-      deptMap[dept].licenses[key].users++;
-      deptMap[dept].licenses[key].fullCost+=unitP;
-      deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
+      deptMap[dept].licenses[key].users++;deptMap[dept].licenses[key].fullCost+=unitP;deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
     });
     deptMap[dept].users.push({name:u.displayName,activeDays:activeDays,isPartial:isPartial,fullCost:userFull,proRatedCost:userPro});
     deptMap[dept].fullCost+=userFull;deptMap[dept].proRatedCost+=userPro;
@@ -403,23 +443,21 @@ async function runAnalysis(){
   renderResults(deptMap,unmatched,monthVal,invoiceTotal);
   document.getElementById('analyse-btn').disabled=false;
 }
+
 function setProg(msg,pct){txt('prog-msg',msg);document.getElementById('prog-bar').style.width=pct+'%'}
 
 async function fetchAllUsers(){
   var url='https://graph.microsoft.com/v1.0/users?$select=id,displayName,department,createdDateTime,assignedLicenses&$top=999';
   var users=[];
-  while(url){
-    var r=await fetch(url,{headers:{Authorization:'Bearer '+accessToken}});
-    if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||r.status)}
-    var d=await r.json();users=users.concat(d.value||[]);url=d['@odata.nextLink']||null;
-  }
+  while(url){var r=await fetch(url,{headers:{Authorization:'Bearer '+accessToken}});if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||r.status)}var d=await r.json();users=users.concat(d.value||[]);url=d['@odata.nextLink']||null}
   var sr=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
   if(sr.ok){var sd=await sr.json();var map={};(sd.value||[]).forEach(function(s){map[s.skuId]=s.skuPartNumber});users.forEach(function(u){(u.assignedLicenses||[]).forEach(function(l){if(!l.skuPartNumber&&map[l.skuId])l.skuPartNumber=map[l.skuId]})})}
   return users;
 }
 
+// ── Step 5: Results ───────────────────────────────────────────────────────────
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
-  hide('month-progress');hide('view-month');show('view-results');setStep(4);
+  hide('month-progress');hide('view-month');show('view-results');setStep(5);
   var p=monthVal.split('-').map(Number);
   var monthName=new Date(p[0],p[1]-1,1).toLocaleString('default',{month:'long',year:'numeric'});
   txt('results-sub',monthName+' · '+graphUsers.length+' users · Invoice total: '+fmt(invoiceTotal));
@@ -431,38 +469,33 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   document.getElementById('summary-grid').innerHTML=sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
   var tbody=document.getElementById('results-tbody');tbody.innerHTML='';
   depts.forEach(function(entry,di){
-    var dept=entry[0],d=entry[1];
-    var partial=d.users.filter(function(u){return u.isPartial}).length;
+    var dept=entry[0],d=entry[1];var partial=d.users.filter(function(u){return u.isPartial}).length;
     var tr=document.createElement('tr');tr.className='dept-row';
     tr.innerHTML='<td>'+esc(dept)+'</td><td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+
       '</td><td>'+fmt(d.fullCost)+'</td><td><strong>'+fmt(d.proRatedCost)+'</strong></td>'+
       '<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
     tbody.appendChild(tr);
     var sub=document.createElement('tr');sub.id='sub-'+di;sub.className='hidden';
-    var licRows=Object.values(d.licenses).map(function(l){
-      return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
-    }).join('');
+    var licRows=Object.values(d.licenses).map(function(l){return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>'}).join('');
     sub.innerHTML='<td colspan="5" style="padding:0"><table style="width:100%"><tbody>'+licRows+'</tbody></table></td>';
     tbody.appendChild(sub);
   });
   var unmatchedKeys=Object.keys(unmatched);
-  if(unmatchedKeys.length){show('unmatched-warn');document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) had no price match</strong> — shown as $0.00:<br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>'}
-  else hide('unmatched-warn');
+  if(unmatchedKeys.length){
+    show('unmatched-warn');
+    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) still unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+  }else hide('unmatched-warn');
   _exportData={depts:depts,monthName:monthName};
 }
+
 function toggleSub(i,btn){var h=document.getElementById('sub-'+i).classList.toggle('hidden');btn.textContent=h?'▸ Details':'▾ Hide'}
 function exportCsv(){
   if(!_exportData)return;
   var csv='Department,Users,Full Month Cost,Pro-rated Cost\n';
-  _exportData.depts.forEach(function(e){
-    var dept=e[0],d=e[1];
-    csv+='"'+dept+'",'+d.users.length+','+d.fullCost.toFixed(2)+','+d.proRatedCost.toFixed(2)+'\n';
-    Object.values(d.licenses).forEach(function(l){csv+='"  \u21b3 '+l.name+'",'+l.users+','+l.fullCost.toFixed(2)+','+l.proRatedCost.toFixed(2)+'\n'});
-  });
-  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';a.click();
+  _exportData.depts.forEach(function(e){var dept=e[0],d=e[1];csv+='"'+dept+'",'+d.users.length+','+d.fullCost.toFixed(2)+','+d.proRatedCost.toFixed(2)+'\n';Object.values(d.licenses).forEach(function(l){csv+='"  \u21b3 '+l.name+'",'+l.users+','+l.fullCost.toFixed(2)+','+l.proRatedCost.toFixed(2)+'\n'})});
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';a.click();
 }
-function goBack(){hide('view-results');show('view-month');setStep(3)}
+function goBack(){hide('view-results');show('view-month');setStep(4)}
 handleRedirect();
 </script>
 </body>
