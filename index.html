@@ -55,17 +55,26 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
 .month-row>div:first-child{flex:1}
 .hidden{display:none!important}
 #extracted-list{max-height:300px;overflow-y:auto}
-/* SKU mapper */
-.sku-item{display:grid;grid-template-columns:1fr 180px 100px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
+.sku-item{display:grid;grid-template-columns:1fr 260px 120px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
 .sku-item.matched{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05)}
 .sku-item.unmatched{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05)}
 .sku-name{font-size:.85rem;font-weight:600}
 .sku-status{font-size:.75rem;padding:2px 8px;border-radius:12px;text-align:center;font-weight:600}
 .sku-status.ok{background:rgba(74,222,128,.15);color:var(--accent2)}
 .sku-status.missing{background:rgba(248,113,113,.15);color:var(--err)}
-.sku-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.82rem;outline:none;width:100%}
+.sku-status.warn{background:rgba(245,158,11,.15);color:var(--warn)}
+/* SKU autocomplete */
+.sku-wrapper{position:relative}
+.sku-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:.82rem;outline:none;width:100%;font-family:monospace}
 .sku-input:focus{border-color:var(--accent)}
 .sku-input.filled{border-color:var(--accent2)}
+.sku-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:6px;z-index:999;max-height:200px;overflow-y:auto;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.sku-dropdown.open{display:block}
+.sku-option{padding:8px 12px;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.sku-option:last-child{border-bottom:none}
+.sku-option:hover,.sku-option.active{background:rgba(108,99,255,.15)}
+.sku-option-code{font-family:monospace;font-weight:600;color:var(--accent2)}
+.sku-option-name{color:var(--muted);font-size:.75rem}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}}
 </style>
 </head>
@@ -84,7 +93,6 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     <div class="step" id="s5"><span class="step-num">5</span> Results</div>
   </div>
 
-  <!-- STEP 1 -->
   <div id="view-connect">
     <div class="card">
       <h2>Connect to Microsoft 365</h2>
@@ -103,16 +111,13 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
       <h3>Azure AD Setup Checklist</h3>
       <div style="font-size:.83rem;line-height:2;color:var(--muted)">
         ✓ portal.azure.com → App registrations → your app → Authentication<br>
-        ✓ Remove any Web platform if present<br>
-        ✓ Add platform → <strong>Single-page application (SPA)</strong><br>
+        ✓ Remove any Web platform → Add platform → <strong>Single-page application (SPA)</strong><br>
         ✓ Redirect URI: <strong id="redirect-uri-val"></strong><br>
-        ✓ API Permissions → Microsoft Graph → Delegated → User.Read.All + Directory.Read.All<br>
-        ✓ Grant admin consent
+        ✓ API Permissions → User.Read.All + Directory.Read.All → Grant admin consent
       </div>
     </div>
   </div>
 
-  <!-- STEP 2 -->
   <div id="view-invoice" class="hidden">
     <div class="card">
       <h2>Upload Reseller Invoice (PDF)</h2>
@@ -146,12 +151,14 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
-  <!-- STEP 3: SKU MAPPER -->
   <div id="view-sku" class="hidden">
     <div class="card">
       <h2>Map License SKUs</h2>
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">
-        Match each invoice line item to its Microsoft SKU code. <span style="color:var(--accent2)">Green = matched</span>, <span style="color:var(--err)">Red = needs a SKU entered</span>. SKU codes must match exactly what Microsoft uses (e.g. <code>SPE_E3</code>, <code>O365_BUSINESS_ESSENTIALS</code>).
+        Match each invoice line to its Microsoft SKU. Type to search or pick from the dropdown.
+        <span style="color:var(--accent2)">● Green = matched in your tenant</span> &nbsp;
+        <span style="color:var(--warn)">● Amber = SKU set but not found in tenant</span> &nbsp;
+        <span style="color:var(--err)">● Red = needs SKU</span>
       </p>
       <div id="sku-mapper-list"></div>
       <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -160,36 +167,8 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
         <span id="sku-warn" style="font-size:.8rem;color:var(--warn)"></span>
       </div>
     </div>
-    <div class="card">
-      <h3>Common SKU Reference</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:6px;font-size:.78rem;color:var(--muted)">
-        <div>M365 Business Basic → <code>O365_BUSINESS_ESSENTIALS</code></div>
-        <div>M365 Business Standard → <code>O365_BUSINESS_PREMIUM</code></div>
-        <div>M365 Business Premium → <code>SPE_BUSINESS_PREMIUM</code></div>
-        <div>M365 Apps for Business → <code>O365_BUSINESS</code></div>
-        <div>Office 365 E1 → <code>STANDARDPACK</code></div>
-        <div>Office 365 E3 → <code>ENTERPRISEPACK</code></div>
-        <div>Office 365 E5 → <code>ENTERPRISEPREMIUM</code></div>
-        <div>M365 E3 → <code>SPE_E3</code></div>
-        <div>M365 E5 → <code>SPE_E5</code></div>
-        <div>Exchange Online Plan 1 → <code>EXCHANGESTANDARD</code></div>
-        <div>Exchange Online Plan 2 → <code>EXCHANGEENTERPRISE</code></div>
-        <div>Teams Phone Standard → <code>MCOEV</code></div>
-        <div>Teams Phone + Calling → <code>MCOTEAMS_ESSENTIALS</code></div>
-        <div>Teams Premium → <code>MICROSOFT_TEAMS_PREMIUM</code></div>
-        <div>Power BI Pro → <code>POWER_BI_PRO</code></div>
-        <div>Power BI Premium/User → <code>PBI_PREMIUM_PER_USER_DEPT</code></div>
-        <div>Visio Plan 2 → <code>VISIOCLIENT</code></div>
-        <div>Project Plan 3 → <code>PROJECTPROFESSIONAL</code></div>
-        <div>Project Plan 5 → <code>PROJECTPREMIUM</code></div>
-        <div>M365 Copilot → <code>MICROSOFT_365_COPILOT</code></div>
-        <div>Intune → <code>INTUNE_A</code></div>
-        <div>EMS E3 → <code>EMS</code></div>
-      </div>
-    </div>
   </div>
 
-  <!-- STEP 4 -->
   <div id="view-month" class="hidden">
     <div class="card">
       <h2>Select Billing Month</h2>
@@ -206,7 +185,6 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
-  <!-- STEP 5 -->
   <div id="view-results" class="hidden">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
       <div>
@@ -229,6 +207,51 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
 
 <script>
 var accessToken=null,extractedLines=[],graphUsers=[],_exportData=null,tenantSkus=[];
+
+// Full SKU reference list with friendly names
+var SKU_LIST=[
+  {sku:'O365_BUSINESS_ESSENTIALS',name:'Microsoft 365 Business Basic'},
+  {sku:'O365_BUSINESS_PREMIUM',name:'Microsoft 365 Business Standard'},
+  {sku:'SPE_BUSINESS_PREMIUM',name:'Microsoft 365 Business Premium'},
+  {sku:'O365_BUSINESS',name:'Microsoft 365 Apps for Business'},
+  {sku:'STANDARDPACK',name:'Office 365 E1'},
+  {sku:'ENTERPRISEPACK',name:'Office 365 E3'},
+  {sku:'ENTERPRISEPREMIUM',name:'Office 365 E5'},
+  {sku:'SPE_E3',name:'Microsoft 365 E3'},
+  {sku:'SPE_E5',name:'Microsoft 365 E5'},
+  {sku:'SPB',name:'Microsoft 365 Business Premium (SPB)'},
+  {sku:'EXCHANGESTANDARD',name:'Exchange Online Plan 1'},
+  {sku:'EXCHANGEENTERPRISE',name:'Exchange Online Plan 2'},
+  {sku:'MCOEV',name:'Teams Phone Standard'},
+  {sku:'MCOTEAMS_ESSENTIALS',name:'Teams Phone with Calling Plan'},
+  {sku:'MICROSOFT_TEAMS_PREMIUM',name:'Microsoft Teams Premium'},
+  {sku:'TEAMS_PREMIUM_FOR_DEPARTMENTS',name:'Teams Premium (For Departments)'},
+  {sku:'MICROSOFT_TEAMS_AUDIO_CONFERENCING_SELECT_DIAL_OUT',name:'Teams Audio Conferencing'},
+  {sku:'MICROSOFT_365_COPILOT',name:'Microsoft 365 Copilot'},
+  {sku:'POWER_BI_PRO',name:'Power BI Pro'},
+  {sku:'POWER_BI_STANDARD',name:'Power BI (Free)'},
+  {sku:'PBI_PREMIUM_PER_USER_DEPT',name:'Power BI Premium Per User'},
+  {sku:'VISIOCLIENT',name:'Visio Plan 2'},
+  {sku:'VISIOONLINE_PLAN1',name:'Visio Plan 1'},
+  {sku:'PROJECTPROFESSIONAL',name:'Project Plan 3'},
+  {sku:'PROJECTPREMIUM',name:'Project Plan 5'},
+  {sku:'INTUNE_A',name:'Microsoft Intune'},
+  {sku:'EMS',name:'Enterprise Mobility + Security E3'},
+  {sku:'EMSPREMIUM',name:'Enterprise Mobility + Security E5'},
+  {sku:'AAD_PREMIUM',name:'Azure AD Premium P1'},
+  {sku:'AAD_PREMIUM_P2',name:'Azure AD Premium P2'},
+  {sku:'FLOW_FREE',name:'Power Automate Free'},
+  {sku:'FLOW_PER_USER_DEPT',name:'Power Automate Per User'},
+  {sku:'POWERAPPS_DEV',name:'PowerApps Developer'},
+  {sku:'POWERAPPS_VIRAL',name:'PowerApps (Viral)'},
+  {sku:'POWER_PAGES_VTRIAL_FOR_MAKERS',name:'Power Pages Trial'},
+  {sku:'STREAM',name:'Microsoft Stream'},
+  {sku:'AX7_USER_TRIAL',name:'Dynamics 365 Trial'},
+  {sku:'MCOSTANDARD',name:'Skype for Business Online Plan 2'},
+  {sku:'DEFENDER_ENDPOINT_P1',name:'Microsoft Defender for Endpoint P1'},
+  {sku:'ATP_ENTERPRISE',name:'Microsoft Defender for Office 365 P1'}
+];
+
 function show(id){document.getElementById(id).classList.remove('hidden')}
 function hide(id){document.getElementById(id).classList.add('hidden')}
 function txt(id,v){document.getElementById(id).textContent=v}
@@ -277,7 +300,6 @@ async function handleRedirect(){
     sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
     txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');show('tenant-badge');
-    // Pre-fetch tenant SKUs in background
     fetchTenantSkus();
     hide('connect-err');hide('view-connect');show('view-invoice');setStep(2);
     document.getElementById('clientId').value=clientId;document.getElementById('tenantId').value=tenantId;
@@ -285,10 +307,7 @@ async function handleRedirect(){
 }
 
 async function fetchTenantSkus(){
-  try{
-    var r=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
-    if(r.ok){var d=await r.json();tenantSkus=(d.value||[]).map(function(s){return s.skuPartNumber}).filter(Boolean)}
-  }catch(e){}
+  try{var r=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});if(r.ok){var d=await r.json();tenantSkus=(d.value||[]).map(function(s){return s.skuPartNumber.toUpperCase()}).filter(Boolean)}}catch(e){}
 }
 
 function loadScript(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
@@ -342,34 +361,49 @@ function renderExtracted(){
 function removeLine(i){extractedLines.splice(i,1);renderExtracted()}
 function addManualLine(){extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});renderExtracted();show('extraction-result');txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''))}
 
-// ── Step 3: SKU Mapper ────────────────────────────────────────────────────────
+// ── SKU Mapper ────────────────────────────────────────────────────────────────
 function goToSkuMapper(){
   if(!extractedLines.length&&!confirm('No lines added. Continue anyway?'))return;
   hide('view-invoice');show('view-sku');setStep(3);
   renderSkuMapper();
 }
 
+function getSkuOptions(query){
+  var q=(query||'').toUpperCase().trim();
+  // First show tenant SKUs, then all others
+  var tenantMatches=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)>=0&&(s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
+  var otherMatches=SKU_LIST.filter(function(s){return tenantSkus.indexOf(s.sku)<0&&(s.sku.indexOf(q)>=0||s.name.toUpperCase().indexOf(q)>=0)});
+  // Also add tenant SKUs not in our list
+  var listedSkus=SKU_LIST.map(function(s){return s.sku});
+  var extraTenant=tenantSkus.filter(function(s){return listedSkus.indexOf(s)<0&&s.indexOf(q)>=0}).map(function(s){return{sku:s,name:'(Your tenant)'}});
+  return tenantMatches.concat(extraTenant).concat(otherMatches).slice(0,15);
+}
+
 function renderSkuMapper(){
   var el=document.getElementById('sku-mapper-list');el.innerHTML='';
-  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem">No line items. Go back and add some.</p>';return}
+  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem">No line items.</p>';return}
   extractedLines.forEach(function(l,i){
     var hasSku=l.sku&&l.sku.trim().length>0;
     var inTenant=hasSku&&tenantSkus.indexOf(l.sku.trim().toUpperCase())>=0;
-    var statusClass=hasSku?'ok':'missing';
-    var statusTxt=hasSku?(inTenant?'✓ Matched in tenant':'⚠ SKU set — not in tenant'):'✗ Needs SKU';
+    var statusClass=hasSku?(inTenant?'ok':'warn'):'missing';
+    var statusTxt=hasSku?(inTenant?'✓ In tenant':'⚠ Not in tenant'):'✗ Needs SKU';
     var itemClass=hasSku?'matched':'unmatched';
     var div=document.createElement('div');div.className='sku-item '+itemClass;div.id='sku-item-'+i;
+
+    var optionsHtml=getSkuOptions(l.sku||'').map(function(o,oi){
+      var isTenant=tenantSkus.indexOf(o.sku)>=0;
+      return'<div class="sku-option" data-sku="'+esc(o.sku)+'" data-idx="'+i+'" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
+    }).join('');
+
     div.innerHTML=
       '<div>'+
         '<div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'+
-        '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+
-          (l.qty?l.qty+' users × ':'')+
-          (l.unitPrice?fmt(l.unitPrice)+'/user':'—')+
-          (l.totalPrice?' = '+fmt(l.totalPrice):'')+
-        '</div>'+
+        '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+(l.qty?l.qty+' users':''+(l.unitPrice?' · '+fmt(l.unitPrice)+'/user':''))+'</div>'+
       '</div>'+
-      '<div>'+
-        '<input class="sku-input'+(hasSku?' filled':'')+'" placeholder="Enter SKU code" value="'+esc(l.sku||'')+'" onchange="updateSku('+i+',this.value)" oninput="updateSku('+i+',this.value)">'+
+      '<div class="sku-wrapper">'+
+        '<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" placeholder="Search or type SKU…" value="'+esc(l.sku||'')+'" '+
+          'oninput="onSkuInput('+i+',this.value)" onfocus="onSkuFocus('+i+')" onblur="onSkuBlur('+i+')" autocomplete="off">'+
+        '<div class="sku-dropdown" id="sku-dd-'+i+'">'+optionsHtml+'</div>'+
       '</div>'+
       '<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
     el.appendChild(div);
@@ -377,24 +411,64 @@ function renderSkuMapper(){
   updateSkuWarning();
 }
 
-function updateSku(i,val){
+function onSkuInput(i,val){
   extractedLines[i].sku=val.trim();
-  var hasSku=val.trim().length>0;
-  var inTenant=hasSku&&tenantSkus.indexOf(val.trim().toUpperCase())>=0;
+  // Update dropdown options
+  var dd=document.getElementById('sku-dd-'+i);
+  var opts=getSkuOptions(val);
+  dd.innerHTML=opts.map(function(o){
+    var isTenant=tenantSkus.indexOf(o.sku)>=0;
+    return'<div class="sku-option" data-sku="'+esc(o.sku)+'" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
+  }).join('');
+  dd.classList.add('open');
+  updateSkuStatus(i,val.trim());
+}
+
+function onSkuFocus(i){
+  var dd=document.getElementById('sku-dd-'+i);
+  var val=document.getElementById('sku-inp-'+i).value;
+  var opts=getSkuOptions(val);
+  dd.innerHTML=opts.map(function(o){
+    var isTenant=tenantSkus.indexOf(o.sku)>=0;
+    return'<div class="sku-option" onmousedown="pickSku('+i+',''+o.sku.replace(/'/g,"\'")+'')">'+'<span class="sku-option-code">'+(isTenant?'★ ':'')+esc(o.sku)+'</span><span class="sku-option-name">'+esc(o.name)+'</span></div>';
+  }).join('');
+  if(opts.length)dd.classList.add('open');
+}
+
+function onSkuBlur(i){
+  setTimeout(function(){
+    var dd=document.getElementById('sku-dd-'+i);
+    if(dd)dd.classList.remove('open');
+  },200);
+}
+
+function pickSku(i,sku){
+  extractedLines[i].sku=sku;
+  var inp=document.getElementById('sku-inp-'+i);
+  if(inp)inp.value=sku;
+  var dd=document.getElementById('sku-dd-'+i);
+  if(dd)dd.classList.remove('open');
+  updateSkuStatus(i,sku);
+  updateSkuWarning();
+}
+
+function updateSkuStatus(i,val){
+  var hasSku=val&&val.length>0;
+  var inTenant=hasSku&&tenantSkus.indexOf(val.toUpperCase())>=0;
   var item=document.getElementById('sku-item-'+i);
   var status=document.getElementById('sku-status-'+i);
-  var input=item.querySelector('.sku-input');
+  var input=document.getElementById('sku-inp-'+i);
+  if(!item)return;
   item.className='sku-item '+(hasSku?'matched':'unmatched');
-  status.className='sku-status '+(hasSku?'ok':'missing');
-  status.textContent=hasSku?(inTenant?'✓ Matched in tenant':'⚠ SKU set — not in tenant'):'✗ Needs SKU';
-  input.className='sku-input'+(hasSku?' filled':'');
+  status.className='sku-status '+(hasSku?(inTenant?'ok':'warn'):'missing');
+  status.textContent=hasSku?(inTenant?'✓ In tenant':'⚠ Not in tenant'):'✗ Needs SKU';
+  if(input)input.className='sku-input'+(hasSku?' filled':'');
   updateSkuWarning();
 }
 
 function updateSkuWarning(){
   var missing=extractedLines.filter(function(l){return!l.sku||!l.sku.trim()}).length;
-  var warnEl=document.getElementById('sku-warn');
-  warnEl.textContent=missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU — they will show as $0.00':'';
+  txt('sku-warn',missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU':'');
 }
 
 function goToStep4(){
@@ -403,7 +477,6 @@ function goToStep4(){
   document.getElementById('billing-month').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
 }
 
-// ── Step 4: Analyse ───────────────────────────────────────────────────────────
 async function runAnalysis(){
   var monthVal=document.getElementById('billing-month').value;
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
@@ -455,7 +528,6 @@ async function fetchAllUsers(){
   return users;
 }
 
-// ── Step 5: Results ───────────────────────────────────────────────────────────
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   hide('month-progress');hide('view-month');show('view-results');setStep(5);
   var p=monthVal.split('-').map(Number);
@@ -483,7 +555,7 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   var unmatchedKeys=Object.keys(unmatched);
   if(unmatchedKeys.length){
     show('unmatched-warn');
-    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) still unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide('view-results');show('view-sku');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
   }else hide('unmatched-warn');
   _exportData={depts:depts,monthName:monthName};
 }
@@ -499,4 +571,4 @@ function goBack(){hide('view-results');show('view-month');setStep(4)}
 handleRedirect();
 </script>
 </body>
-</html>
+  </html>
