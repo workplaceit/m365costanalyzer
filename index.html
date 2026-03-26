@@ -153,7 +153,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
   </div>
 
-  <!-- STEP 3: SKU MAPPER -->
+  <!-- STEP 3 -->
   <div id="view-sku" class="hidden">
     <div class="card">
       <h2>Map License SKUs</h2>
@@ -276,7 +276,7 @@ async function startLogin(){
   var btn=document.getElementById('signin-btn');btn.disabled=true;btn.textContent='Redirecting…';
   var pkce=await generatePKCE();
   var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
-      localStorage.setItem('pkce_verifier',pkce.verifier);
+  localStorage.setItem('pkce_verifier',pkce.verifier);
   localStorage.setItem('pkce_state',state);
   localStorage.setItem('client_id',clientId);
   localStorage.setItem('tenant_id',tenantId);
@@ -293,7 +293,11 @@ async function handleRedirect(){
   var params=new URLSearchParams(window.location.search);
   var code=params.get('code'),state=params.get('state'),error=params.get('error');
   if(error){show('connect-err');txt('connect-err','Sign-in error: '+decodeURIComponent(params.get('error_description')||error));window.history.replaceState({},document.title,window.location.pathname);return}
-  if(!code)return;
+  if(!code){
+    // No redirect — try auto-restore from stored refresh token
+    await tryAutoRestore();
+    return;
+  }
   if(state!==localStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
   var verifier=localStorage.getItem('pkce_verifier'),clientId=localStorage.getItem('client_id'),tenantId=localStorage.getItem('tenant_id');
   window.history.replaceState({},document.title,window.location.pathname);
@@ -312,7 +316,8 @@ async function handleRedirect(){
     if(!resp.ok)throw new Error(data.error_description||data.error||'Token exchange failed');
     accessToken=data.access_token;
     if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
-    localStorage.setItem('client_id',clientId);localStorage.setItem('tenant_id',tenantId);
+    localStorage.setItem('client_id',clientId);
+    localStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
     txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');
     show('tenant-badge');
@@ -321,6 +326,43 @@ async function handleRedirect(){
     document.getElementById('clientId').value=clientId;
     document.getElementById('tenantId').value=tenantId;
   }catch(e){errEl.className='alert alert-err';txt('connect-err','Token exchange failed: '+e.message)}
+}
+
+async function tryAutoRestore(){
+  var refreshTok=localStorage.getItem('refresh_token');
+  var clientId=localStorage.getItem('client_id');
+  var tenantId=localStorage.getItem('tenant_id');
+  if(!refreshTok||!clientId||!tenantId)return;
+  // Pre-fill IDs
+  document.getElementById('clientId').value=clientId;
+  document.getElementById('tenantId').value=tenantId;
+  var ok=await refreshToken();
+  if(ok){
+    var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
+    txt('tenant-badge',me.userPrincipalName||me.displayName||'Reconnected');
+    show('tenant-badge');
+    fetchTenantSkus();
+    hide('view-connect');show('view-invoice');setStep(2);
+  }
+}
+
+async function refreshToken(){
+  var clientId=localStorage.getItem('client_id');
+  var tenantId=localStorage.getItem('tenant_id');
+  var refreshTok=localStorage.getItem('refresh_token');
+  if(!refreshTok||!clientId||!tenantId)return false;
+  try{
+    var body=new URLSearchParams({
+      client_id:clientId,grant_type:'refresh_token',refresh_token:refreshTok,
+      scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'
+    });
+    var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+    var data=await resp.json();
+    if(!resp.ok)return false;
+    accessToken=data.access_token;
+    if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
+    return true;
+  }catch(e){return false}
 }
 
 async function fetchTenantSkus(){
@@ -387,26 +429,14 @@ function renderExtracted(){
     var div=document.createElement('div');div.className='license-item';
     div.innerHTML='<div style="flex:1;min-width:0">'+
       '<input style="background:transparent;border:none;font-weight:600;font-size:.85rem;color:var(--text);width:100%;padding:0" value="'+esc(l.name||'')+'" onchange="extractedLines['+i+'].name=this.value">'+
-      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">'+
-        'SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">'+
-        '&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">'+
-        '&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value">'+
-      '</div></div>'+
-      '<div style="text-align:right;flex-shrink:0;margin-left:12px">'+
-        '<div class="license-price">'+total+'</div>'+
-        '<button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button>'+
-      '</div>';
+      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
+      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div><button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button></div>';
     el.appendChild(div);
   });
 }
 function removeLine(i){extractedLines.splice(i,1);renderExtracted()}
-function addManualLine(){
-  extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});
-  renderExtracted();show('extraction-result');
-  txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''));
-}
+function addManualLine(){extractedLines.push({name:'New License',sku:'',qty:1,unitPrice:0,totalPrice:0});renderExtracted();show('extraction-result');txt('extraction-ok',extractedLines.length+' line item'+(extractedLines.length!==1?'s':''))}
 
-// ── SKU Mapper ──────────────────────────────────────────────────────────────
 function goToSkuMapper(){
   if(!extractedLines.length&&!confirm('No lines added. Continue anyway?'))return;
   hide('view-invoice');show('view-sku');setStep(3);
@@ -433,44 +463,25 @@ function renderSkuMapper(){
     var div=document.createElement('div');
     div.className='sku-item '+(hasSku?'matched':'unmatched');
     div.id='sku-item-'+i;
-    var opts=getSkuOptions(l.sku||'').map(function(o){
-      var isTenant=tenantSkus.indexOf(o.sku)>=0;
-      return '<div class="sku-option" onmousedown="pickSku('+i+',\''+o.sku.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
-        +'<span class="sku-option-code">'+esc(o.sku)+(isTenant?'<span class="sku-tenant-badge">your tenant</span>':'')+'</span>'
-        +'<span class="sku-option-name">'+esc(o.name)+'</span>'
-        +'</div>';
-    }).join('');
     div.innerHTML=
-      '<div>'
-        +'<div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'
-        +'<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'
-          +(l.qty?l.qty+' users':'')
-          +(l.unitPrice?' &nbsp;·&nbsp; '+fmt(l.unitPrice)+'/user':'')
-        +'</div>'
-      +'</div>'
-      +'<div class="sku-wrapper">'
-        +'<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" '
-          +'placeholder="Type to search SKU…" value="'+esc(l.sku||'')+'" '
-          +'oninput="onSkuInput('+i+',this.value)" '
-          +'onfocus="onSkuFocus('+i+')" '
-          +'onblur="onSkuBlur('+i+')" '
-          +'autocomplete="off">'
-        +'<div class="sku-dropdown" id="sku-dd-'+i+'">'+opts+'</div>'
-      +'</div>'
-      +'<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
+      '<div><div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'+
+      '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+(l.qty?l.qty+' users':'')+(l.unitPrice?' &nbsp;·&nbsp; '+fmt(l.unitPrice)+'/user':'')+'</div></div>'+
+      '<div class="sku-wrapper">'+
+        '<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" placeholder="Type to search SKU…" value="'+esc(l.sku||'')+'" oninput="onSkuInput('+i+',this.value)" onfocus="onSkuFocus('+i+')" onblur="onSkuBlur('+i+')" autocomplete="off">'+
+        '<div class="sku-dropdown" id="sku-dd-'+i+'">'+buildDropdownHtml(i,l.sku||'')+'</div>'+
+      '</div>'+
+      '<div><span class="sku-status '+statusClass+'" id="sku-status-'+i+'">'+statusTxt+'</span></div>';
     el.appendChild(div);
   });
   updateSkuWarning();
 }
 
 function buildDropdownHtml(i,query){
-  var opts=getSkuOptions(query);
-  return opts.map(function(o){
+  return getSkuOptions(query).map(function(o){
     var isTenant=tenantSkus.indexOf(o.sku)>=0;
-    return '<div class="sku-option" onmousedown="pickSku('+i+',\''+o.sku.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+    return'<div class="sku-option" onmousedown="pickSku('+i+',\''+o.sku.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')">'
       +'<span class="sku-option-code">'+esc(o.sku)+(isTenant?'<span class="sku-tenant-badge">your tenant</span>':'')+'</span>'
-      +'<span class="sku-option-name">'+esc(o.name)+'</span>'
-      +'</div>';
+      +'<span class="sku-option-name">'+esc(o.name)+'</span></div>';
   }).join('');
 }
 
@@ -487,9 +498,7 @@ function onSkuFocus(i){
   dd.innerHTML=buildDropdownHtml(i,val);
   dd.classList.add('open');
 }
-function onSkuBlur(i){
-  setTimeout(function(){var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open')},200);
-}
+function onSkuBlur(i){setTimeout(function(){var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open')},200)}
 function pickSku(i,sku){
   extractedLines[i].sku=sku;
   var inp=document.getElementById('sku-inp-'+i);if(inp)inp.value=sku;
@@ -520,42 +529,40 @@ function goToStep4(){
   document.getElementById('billing-month').value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
 }
 
-// ── Analyse ─────────────────────────────────────────────────────────────────
-async function refreshToken(){
-  var clientId=localStorage.getItem('client_id');
-  var tenantId=localStorage.getItem('tenant_id');
-  var refreshTok=localStorage.getItem('refresh_token');
-  if(!refreshTok||!clientId||!tenantId)return false;
-  try{
-    var body=new URLSearchParams({client_id:clientId,grant_type:'refresh_token',refresh_token:refreshTok,scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'});
-    var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
-    var data=await resp.json();
-    if(!resp.ok)return false;
-    accessToken=data.access_token;
-    if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
-    return true;
-  }catch(e){return false}
-}
-
 async function runAnalysis(){
   var monthVal=document.getElementById('billing-month').value;
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
   hide('month-err');show('month-progress');
   document.getElementById('analyse-btn').disabled=true;
-  // Refresh token silently before calling Graph API
-  await refreshToken();
+  // Refresh token before calling Graph API
+  if(!accessToken){
+    var ok=await refreshToken();
+    if(!ok){
+      hide('month-progress');document.getElementById('analyse-btn').disabled=false;
+      show('month-err');txt('month-err','Session expired. Please sign in again.');
+      hide('view-month');hide('view-invoice');hide('view-sku');hide('view-results');
+      show('view-connect');setStep(1);
+      return;
+    }
+  }
   var p=monthVal.split('-').map(Number),yr=p[0],mo=p[1];
   var monthStart=new Date(yr,mo-1,1),monthEnd=new Date(yr,mo,0,23,59,59);
   var daysInMonth=monthEnd.getDate();
   setProg('Fetching users from Microsoft 365…',20);
   try{graphUsers=await fetchAllUsers()}
-  catch(e){hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e.message);return}
+  catch(e){
+    // If token expired mid-session, try refresh once
+    if(e.message&&e.message.indexOf('token')>=0||e.message.indexOf('authorization')>=0){
+      var refreshed=await refreshToken();
+      if(refreshed){try{graphUsers=await fetchAllUsers()}catch(e2){hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e2.message);return}}
+      else{hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Session expired. Please sign in again.');hide('view-month');show('view-connect');setStep(1);return}
+    } else {
+      hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e.message);return;
+    }
+  }
   setProg('Calculating costs…',70);
   var skuMap={};
-  extractedLines.forEach(function(l){
-    var u=l.unitPrice||(l.qty&&l.totalPrice?l.totalPrice/l.qty:0);
-    if(l.sku)skuMap[l.sku.toUpperCase().trim()]=u;
-  });
+  extractedLines.forEach(function(l){var u=l.unitPrice||(l.qty&&l.totalPrice?l.totalPrice/l.qty:0);if(l.sku)skuMap[l.sku.toUpperCase().trim()]=u});
   var invoiceTotal=extractedLines.reduce(function(s,l){return s+(l.totalPrice||(l.qty*l.unitPrice)||0)},0);
   var deptMap={},unmatched={};
   graphUsers.forEach(function(u){
@@ -573,9 +580,7 @@ async function runAnalysis(){
       userFull+=unitP;userPro+=unitP*proRata;
       var key=lic.skuPartNumber||lic.skuId||'Unknown';
       if(!deptMap[dept].licenses[key])deptMap[dept].licenses[key]={name:key,users:0,fullCost:0,proRatedCost:0,unitPrice:unitP};
-      deptMap[dept].licenses[key].users++;
-      deptMap[dept].licenses[key].fullCost+=unitP;
-      deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
+      deptMap[dept].licenses[key].users++;deptMap[dept].licenses[key].fullCost+=unitP;deptMap[dept].licenses[key].proRatedCost+=unitP*proRata;
     });
     deptMap[dept].users.push({name:u.displayName,activeDays:activeDays,isPartial:isPartial,fullCost:userFull,proRatedCost:userPro});
     deptMap[dept].fullCost+=userFull;deptMap[dept].proRatedCost+=userPro;
@@ -595,15 +600,10 @@ async function fetchAllUsers(){
     var d=await r.json();users=users.concat(d.value||[]);url=d['@odata.nextLink']||null;
   }
   var sr=await fetch('https://graph.microsoft.com/v1.0/subscribedSkus',{headers:{Authorization:'Bearer '+accessToken}});
-  if(sr.ok){
-    var sd=await sr.json();var map={};
-    (sd.value||[]).forEach(function(s){map[s.skuId]=s.skuPartNumber});
-    users.forEach(function(u){(u.assignedLicenses||[]).forEach(function(l){if(!l.skuPartNumber&&map[l.skuId])l.skuPartNumber=map[l.skuId]})});
-  }
+  if(sr.ok){var sd=await sr.json();var map={};(sd.value||[]).forEach(function(s){map[s.skuId]=s.skuPartNumber});users.forEach(function(u){(u.assignedLicenses||[]).forEach(function(l){if(!l.skuPartNumber&&map[l.skuId])l.skuPartNumber=map[l.skuId]})})}
   return users;
 }
 
-// ── Results ──────────────────────────────────────────────────────────────────
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   hide('month-progress');hide('view-month');show('view-results');setStep(5);
   var p=monthVal.split('-').map(Number);
@@ -614,26 +614,19 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   var tPro=depts.reduce(function(s,d){return s+d[1].proRatedCost},0);
   var tUsers=depts.reduce(function(s,d){return s+d[1].users.length},0);
   var tPartial=depts.reduce(function(s,d){return s+d[1].users.filter(function(u){return u.isPartial}).length},0);
-  document.getElementById('summary-grid').innerHTML=
-    sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+
-    sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+
-    sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
+  document.getElementById('summary-grid').innerHTML=sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
   var tbody=document.getElementById('results-tbody');tbody.innerHTML='';
   depts.forEach(function(entry,di){
     var dept=entry[0],d=entry[1];
     var partial=d.users.filter(function(u){return u.isPartial}).length;
     var tr=document.createElement('tr');tr.className='dept-row';
-    tr.innerHTML='<td>'+esc(dept)+'</td>'
-      +'<td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+'</td>'
-      +'<td>'+fmt(d.fullCost)+'</td>'
-      +'<td><strong>'+fmt(d.proRatedCost)+'</strong></td>'
-      +'<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
+    tr.innerHTML='<td>'+esc(dept)+'</td><td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+
+      '</td><td>'+fmt(d.fullCost)+'</td><td><strong>'+fmt(d.proRatedCost)+'</strong></td>'+
+      '<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
     tbody.appendChild(tr);
     var sub=document.createElement('tr');sub.id='sub-'+di;sub.className='hidden';
     var licRows=Object.values(d.licenses).map(function(l){
-      return '<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td>'
-        +'<td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td>'
-        +'<td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
+      return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
     }).join('');
     sub.innerHTML='<td colspan="5" style="padding:0"><table style="width:100%"><tbody>'+licRows+'</tbody></table></td>';
     tbody.appendChild(sub);
@@ -641,10 +634,7 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   var unmatchedKeys=Object.keys(unmatched);
   if(unmatchedKeys.length){
     show('unmatched-warn');
-    document.getElementById('unmatched-warn').innerHTML=
-      '⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. '
-      +'<button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button>'
-      +'<br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
   }else{hide('unmatched-warn')}
   _exportData={depts:depts,monthName:monthName};
 }
@@ -657,10 +647,8 @@ function exportCsv(){
     csv+='"'+dept+'",'+d.users.length+','+d.fullCost.toFixed(2)+','+d.proRatedCost.toFixed(2)+'\n';
     Object.values(d.licenses).forEach(function(l){csv+='"  \u21b3 '+l.name+'",'+l.users+','+l.fullCost.toFixed(2)+','+l.proRatedCost.toFixed(2)+'\n'});
   });
-  var a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';
-  a.click();
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='m365-billing-'+_exportData.monthName.replace(' ','-')+'.csv';a.click();
 }
 function goBack(){hide('view-results');show('view-month');setStep(4)}
 handleRedirect();
