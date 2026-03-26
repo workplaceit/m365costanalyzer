@@ -276,10 +276,10 @@ async function startLogin(){
   var btn=document.getElementById('signin-btn');btn.disabled=true;btn.textContent='Redirecting…';
   var pkce=await generatePKCE();
   var state=b64url(crypto.getRandomValues(new Uint8Array(16)));
-  sessionStorage.setItem('pkce_verifier',pkce.verifier);
-  sessionStorage.setItem('pkce_state',state);
-  sessionStorage.setItem('client_id',clientId);
-  sessionStorage.setItem('tenant_id',tenantId);
+      localStorage.setItem('pkce_verifier',pkce.verifier);
+  localStorage.setItem('pkce_state',state);
+  localStorage.setItem('client_id',clientId);
+  localStorage.setItem('tenant_id',tenantId);
   var params=new URLSearchParams({
     client_id:clientId,response_type:'code',redirect_uri:REDIRECT_URI,
     response_mode:'query',
@@ -294,8 +294,8 @@ async function handleRedirect(){
   var code=params.get('code'),state=params.get('state'),error=params.get('error');
   if(error){show('connect-err');txt('connect-err','Sign-in error: '+decodeURIComponent(params.get('error_description')||error));window.history.replaceState({},document.title,window.location.pathname);return}
   if(!code)return;
-  if(state!==sessionStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
-  var verifier=sessionStorage.getItem('pkce_verifier'),clientId=sessionStorage.getItem('client_id'),tenantId=sessionStorage.getItem('tenant_id');
+  if(state!==localStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
+  var verifier=localStorage.getItem('pkce_verifier'),clientId=localStorage.getItem('client_id'),tenantId=localStorage.getItem('tenant_id');
   window.history.replaceState({},document.title,window.location.pathname);
   var errEl=document.getElementById('connect-err');
   errEl.className='alert alert-info';
@@ -311,8 +311,8 @@ async function handleRedirect(){
     var data=await resp.json();
     if(!resp.ok)throw new Error(data.error_description||data.error||'Token exchange failed');
     accessToken=data.access_token;
-    if(data.refresh_token)sessionStorage.setItem('refresh_token',data.refresh_token);
-    sessionStorage.setItem('client_id',clientId);sessionStorage.setItem('tenant_id',tenantId);
+    if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
+    localStorage.setItem('client_id',clientId);localStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
     txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');
     show('tenant-badge');
@@ -522,9 +522,9 @@ function goToStep4(){
 
 // ── Analyse ─────────────────────────────────────────────────────────────────
 async function refreshToken(){
-  var clientId=sessionStorage.getItem('client_id');
-  var tenantId=sessionStorage.getItem('tenant_id');
-  var refreshTok=sessionStorage.getItem('refresh_token');
+  var clientId=localStorage.getItem('client_id');
+  var tenantId=localStorage.getItem('tenant_id');
+  var refreshTok=localStorage.getItem('refresh_token');
   if(!refreshTok||!clientId||!tenantId)return false;
   try{
     var body=new URLSearchParams({client_id:clientId,grant_type:'refresh_token',refresh_token:refreshTok,scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'});
@@ -532,7 +532,7 @@ async function refreshToken(){
     var data=await resp.json();
     if(!resp.ok)return false;
     accessToken=data.access_token;
-    if(data.refresh_token)sessionStorage.setItem('refresh_token',data.refresh_token);
+    if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
     return true;
   }catch(e){return false}
 }
