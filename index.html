@@ -521,11 +521,29 @@ function goToStep4(){
 }
 
 // ── Analyse ─────────────────────────────────────────────────────────────────
+async function refreshToken(){
+  var clientId=sessionStorage.getItem('client_id');
+  var tenantId=sessionStorage.getItem('tenant_id');
+  var refreshTok=sessionStorage.getItem('refresh_token');
+  if(!refreshTok||!clientId||!tenantId)return false;
+  try{
+    var body=new URLSearchParams({client_id:clientId,grant_type:'refresh_token',refresh_token:refreshTok,scope:'https://graph.microsoft.com/User.Read.All https://graph.microsoft.com/Directory.Read.All offline_access'});
+    var resp=await fetch('https://login.microsoftonline.com/'+tenantId+'/oauth2/v2.0/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+    var data=await resp.json();
+    if(!resp.ok)return false;
+    accessToken=data.access_token;
+    if(data.refresh_token)sessionStorage.setItem('refresh_token',data.refresh_token);
+    return true;
+  }catch(e){return false}
+}
+
 async function runAnalysis(){
   var monthVal=document.getElementById('billing-month').value;
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
   hide('month-err');show('month-progress');
   document.getElementById('analyse-btn').disabled=true;
+  // Refresh token silently before calling Graph API
+  await refreshToken();
   var p=monthVal.split('-').map(Number),yr=p[0],mo=p[1];
   var monthStart=new Date(yr,mo-1,1),monthEnd=new Date(yr,mo,0,23,59,59);
   var daysInMonth=monthEnd.getDate();
