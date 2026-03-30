@@ -203,7 +203,13 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
     <div class="summary-grid" id="summary-grid"></div>
     <div class="card" style="padding:0;overflow:hidden">
-      <table><thead><tr><th>Department</th><th>Users</th><th>Full Month</th><th>Pro-rated</th><th></th></tr></thead>
+      <table><thead><tr>
+        <th style="cursor:pointer" onclick="sortResults('dept')">Department<span id="sort-dept"></span></th>
+        <th style="cursor:pointer" onclick="sortResults('users')">Users<span id="sort-users"></span></th>
+        <th style="cursor:pointer" onclick="sortResults('full')">Full Month<span id="sort-full"></span></th>
+        <th style="cursor:pointer" onclick="sortResults('cost')">Pro-rated ↓<span id="sort-cost"> ↓</span></th>
+        <th></th>
+      </tr></thead>
       <tbody id="results-tbody"></tbody></table>
     </div>
     <div id="unmatched-warn" class="alert alert-warn hidden" style="margin-top:16px"></div>
@@ -604,17 +610,48 @@ async function fetchAllUsers(){
   return users;
 }
 
+var _sortCol='cost',_sortDir=-1,_deptMap,_unmatched,_monthVal,_invoiceTotal;
+function sortResults(col){
+  if(_sortCol===col){_sortDir*=-1}else{_sortCol=col;_sortDir=col==='dept'?1:-1}
+  buildTable();
+}
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
+  _deptMap=deptMap;_unmatched=unmatched;_monthVal=monthVal;_invoiceTotal=invoiceTotal;
   hide('month-progress');hide('view-month');show('view-results');setStep(5);
   var p=monthVal.split('-').map(Number);
   var monthName=new Date(p[0],p[1]-1,1).toLocaleString('default',{month:'long',year:'numeric'});
   txt('results-sub',monthName+' · '+graphUsers.length+' users · Invoice total: '+fmt(invoiceTotal));
-  var depts=Object.entries(deptMap).sort(function(a,b){return b[1].proRatedCost-a[1].proRatedCost});
+  var depts=Object.entries(deptMap);
   var tFull=depts.reduce(function(s,d){return s+d[1].fullCost},0);
   var tPro=depts.reduce(function(s,d){return s+d[1].proRatedCost},0);
   var tUsers=depts.reduce(function(s,d){return s+d[1].users.length},0);
   var tPartial=depts.reduce(function(s,d){return s+d[1].users.filter(function(u){return u.isPartial}).length},0);
   document.getElementById('summary-grid').innerHTML=sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
+  _sortCol='cost';_sortDir=-1;
+  buildTable();
+  var unmatchedKeys=Object.keys(unmatched);
+  if(unmatchedKeys.length){
+    show('unmatched-warn');
+    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+  }else{hide('unmatched-warn')}
+  _exportData={monthName:monthName};
+}
+
+function buildTable(){
+  var depts=Object.entries(_deptMap);
+  depts.sort(function(a,b){
+    var r=0;
+    if(_sortCol==='dept') r=a[0].localeCompare(b[0]);
+    else if(_sortCol==='users') r=a[1].users.length-b[1].users.length;
+    else if(_sortCol==='full') r=a[1].fullCost-b[1].fullCost;
+    else r=a[1].proRatedCost-b[1].proRatedCost;
+    return r*_sortDir;
+  });
+  // Update header arrows
+  ['dept','users','full','cost'].forEach(function(c){
+    var el=document.getElementById('sort-'+c);
+    if(el)el.textContent=_sortCol===c?(_sortDir===1?' ↑':' ↓'):'';
+  });
   var tbody=document.getElementById('results-tbody');tbody.innerHTML='';
   depts.forEach(function(entry,di){
     var dept=entry[0],d=entry[1];
@@ -628,7 +665,27 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
     var licRows=Object.values(d.licenses).map(function(l){
       return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
     }).join('');
-    sub.innerHTML='<td colspan="5" style="padding:0"><table style="width:100%"><tbody>'+licRows+'</tbody></table></td>';
+    var userRows=d.users.map(function(u){
+      return'<tr class="sub-row">'
+        +'<td style="padding-left:28px;color:var(--text)">👤 '+esc(u.name||'Unknown')+'</td>'
+        +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'Full month')+'</td>'
+        +'<td>'+fmt(u.fullCost)+'</td>'
+        +'<td>'+fmt(u.proRatedCost)+'</td>'
+        +'<td></td>'
+        +'</tr>';
+    }).join('');
+    sub.innerHTML='<td colspan="5" style="padding:0">'
+      +'<table style="width:100%"><tbody>'
+      +'<tr style="background:rgba(108,99,255,.06)"><td colspan="5" style="padding:6px 12px;font-size:.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Licenses</td></tr>'
+      +licRows
+      +'<tr style="background:rgba(108,99,255,.06)">'
+        +'<td colspan="4" style="padding:6px 12px;font-size:.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Users ('+d.users.length+')</td>'
+        +'<td style="padding:6px 12px;text-align:right"><input placeholder="Filter users…" oninput="filterUsers('+di+',this.value)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:6px;font-size:.75rem;outline:none;width:130px"></td>'
+      +'</tr>'
+      +'<tbody id="user-rows-'+di+'">'+userRows+'</tbody>'
+      +'</tbody></table>'
+      +'</td>';
+    sub.setAttribute('data-users', JSON.stringify(d.users));
     tbody.appendChild(sub);
   });
   var unmatchedKeys=Object.keys(unmatched);
@@ -636,7 +693,22 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
     show('unmatched-warn');
     document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
   }else{hide('unmatched-warn')}
-  _exportData={depts:depts,monthName:monthName};
+  _exportData={depts:depts,monthName:_exportData?_exportData.monthName:''};
+}
+function filterUsers(di,query){
+  var q=query.toLowerCase().trim();
+  var sub=document.getElementById('sub-'+di);
+  var users=JSON.parse(sub.getAttribute('data-users'));
+  var filtered=q?users.filter(function(u){return(u.name||'').toLowerCase().indexOf(q)>=0}):users;
+  document.getElementById('user-rows-'+di).innerHTML=filtered.map(function(u){
+    return'<tr class="sub-row">'
+      +'<td style="padding-left:28px;color:var(--text)">👤 '+esc(u.name||'Unknown')+'</td>'
+      +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'Full month')+'</td>'
+      +'<td>'+fmt(u.fullCost)+'</td>'
+      +'<td>'+fmt(u.proRatedCost)+'</td>'
+      +'<td></td>'
+      +'</tr>';
+  }).join('');
 }
 function toggleSub(i,btn){var h=document.getElementById('sub-'+i).classList.toggle('hidden');btn.textContent=h?'▸ Details':'▾ Hide'}
 function exportCsv(){
