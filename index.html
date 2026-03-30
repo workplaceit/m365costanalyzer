@@ -3,106 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M365 Billing Analyzer</title>
+<title>M365 Billing Analyzer — E2 Optics</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;--accent:#6c63ff;--accent2:#4ade80;--text:#e8eaf6;--muted:#8b8fa8;--warn:#f59e0b;--err:#f87171;--radius:12px}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-h1{font-size:1.4rem;font-weight:700}h2{font-size:1.05rem;font-weight:600;margin-bottom:12px}h3{font-size:.9rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px}
-.logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
-.badge{font-size:.7rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:20px;margin-left:auto}
-.container{max-width:1100px;margin:0 auto;padding:24px}
-.steps{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
-.step{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;font-size:.82rem;font-weight:500;border:1px solid var(--border);color:var(--muted);background:var(--surface)}
-.step.active{border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1)}
-.step.done{border-color:var(--accent2);color:var(--accent2);background:rgba(74,222,128,.08)}
-.step-num{width:20px;height:20px;border-radius:50%;background:currentColor;color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+:root{
+  --navy:#0a1628;--blue:#00549C;--blue-dark:#003f78;--blue-light:#e8f2fb;
+  --teal:#00a99d;--white:#ffffff;--light:#f4f6f9;--border:#dde3ec;
+  --text:#1a2b42;--muted:#6b7e99;--err:#d93025;--warn:#f59e0b;--ok:#1a8754;
+  --radius:6px;--shadow:0 2px 12px rgba(0,84,156,.1);
+}
+body{background:var(--light);color:var(--text);font-family:'Poppins',sans-serif;min-height:100vh;font-size:14px}
+h1{font-size:1.3rem;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1rem;font-weight:600;margin-bottom:14px;color:var(--navy)}
+h3{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+
+/* HEADER */
+.header{background:var(--navy);padding:0 32px;display:flex;align-items:center;height:64px;gap:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header-logo img{height:40px;width:auto}
+.header-divider{width:1px;height:32px;background:rgba(255,255,255,.2)}
+.header-title{color:var(--white);font-size:1rem;font-weight:600;letter-spacing:-.01em}
+.header-sub{color:rgba(255,255,255,.5);font-size:.72rem;font-weight:400}
+.badge{font-size:.68rem;background:var(--teal);color:#fff;padding:3px 10px;border-radius:20px;margin-left:auto;font-weight:500}
+
+/* STEPS BAR */
+.steps-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0}
+.step{display:flex;align-items:center;gap:8px;padding:14px 20px;font-size:.78rem;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;cursor:default;transition:all .2s}
+.step.active{color:var(--blue);border-bottom-color:var(--blue)}
+.step.done{color:var(--ok)}
+.step-num{width:22px;height:22px;border-radius:50%;background:currentColor;color:var(--white);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0}
+.step.done .step-num{background:var(--ok)}
+
+/* LAYOUT */
+.container{max-width:1080px;margin:0 auto;padding:28px 24px}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin-bottom:20px;box-shadow:var(--shadow)}
+.card-title{font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:4px}
+.card-sub{font-size:.8rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+
+/* FORM */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:500}
-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.9rem;outline:none;transition:border .2s}
-input:focus{border-color:var(--accent)}input::placeholder{color:var(--muted)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#5a52e0}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-.btn-sm{padding:6px 14px;font-size:.8rem}.btn:disabled{opacity:.45;cursor:not-allowed}
-.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
-.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(108,99,255,.05)}
+label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+input{width:100%;background:var(--white);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-size:.85rem;outline:none;transition:border .2s;font-family:'Poppins',sans-serif}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,84,156,.1)}
+input::placeholder{color:#b0bbc9}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:var(--radius);font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Poppins',sans-serif;letter-spacing:.01em}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-dark)}
+.btn-secondary{background:var(--white);color:var(--blue);border:1.5px solid var(--blue)}.btn-secondary:hover{background:var(--blue-light)}
+.btn-sm{padding:6px 14px;font-size:.76rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ALERTS */
+.alert{padding:11px 16px;border-radius:var(--radius);font-size:.82rem;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;line-height:1.6}
+.alert-err{background:#fdf0ef;border:1px solid #f5c6c3;color:var(--err)}
+.alert-ok{background:#eaf6ef;border:1px solid #b8e0c8;color:var(--ok)}
+.alert-info{background:var(--blue-light);border:1px solid #b8d5f0;color:var(--blue)}
+.alert-warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+
+/* DROP ZONE */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:36px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--light)}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--blue);background:var(--blue-light)}
 .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.pill-amber{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600;background:rgba(245,158,11,.15);color:var(--warn)}
-.alert{padding:12px 16px;border-radius:8px;font-size:.84rem;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;line-height:1.5}
-.alert-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warn)}
-.alert-err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--err)}
-.alert-ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--accent2)}
-.alert-info{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);color:var(--accent)}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border)}
-td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{background:rgba(108,99,255,.04)}
-.dept-row td:first-child{font-weight:600}
-.expand-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:.8rem;padding:2px 8px}
-.sub-row td{color:var(--muted);font-size:.8rem;background:rgba(0,0,0,.15)}
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.summary-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px}
-.summary-val{font-size:1.5rem;font-weight:700;margin-bottom:2px}.summary-label{font-size:.75rem;color:var(--muted)}
-.loader{display:inline-block;width:16px;height:16px;border:2px solid rgba(108,99,255,.3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;flex-shrink:0}
+.drop-icon{font-size:2.2rem;margin-bottom:10px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{text-align:left;padding:10px 14px;color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;border-bottom:2px solid var(--border);background:var(--light);user-select:none}
+th.sortable{cursor:pointer}th.sortable:hover{color:var(--blue)}
+th.sorted{color:var(--blue)}
+td{padding:11px 14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.dept-row td:first-child{font-weight:600;color:var(--navy)}
+.expand-btn{background:none;border:none;color:var(--blue);cursor:pointer;font-size:.76rem;padding:3px 8px;font-family:'Poppins',sans-serif;font-weight:500}
+.expand-btn:hover{text-decoration:underline}
+.sub-row td{color:var(--muted);font-size:.79rem;background:#fafbfc}
+
+/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.summary-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border-top:3px solid var(--blue)}
+.summary-val{font-size:1.45rem;font-weight:700;margin-bottom:2px;color:var(--navy)}
+.summary-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+
+/* LOADER */
+.loader{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,84,156,.2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.progress{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:8px}
-.progress-bar{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
-.license-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px}
-.license-price{font-size:.85rem;font-weight:600;color:var(--accent2)}
+.progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-bar{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+
+/* LICENSE ITEM */
+.license-item{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--light);border-radius:var(--radius);margin-bottom:6px;border:1px solid var(--border)}
+.license-price{font-size:.83rem;font-weight:600;color:var(--blue)}
+
+/* PILLS */
+.pill-amber{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;background:#fef3c7;color:#92400e}
+.pill-ok{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;background:#d1fae5;color:#065f46}
+
+/* MONTH ROW */
 .month-row{display:flex;gap:12px;align-items:flex-end;margin-bottom:20px}
 .month-row>div:first-child{flex:1}
+
+/* SKU MAPPER */
+.sku-item{display:grid;grid-template-columns:1fr 260px 130px;gap:12px;align-items:center;padding:12px 16px;border-radius:var(--radius);margin-bottom:8px;border:1.5px solid var(--border);background:var(--white)}
+.sku-item.matched{border-color:#86efac;background:#f0fdf4}
+.sku-item.unmatched{border-color:#fca5a5;background:#fff5f5}
+.sku-name{font-size:.84rem;font-weight:600;color:var(--navy)}
+.sku-status{font-size:.72rem;padding:3px 10px;border-radius:20px;text-align:center;font-weight:600;white-space:nowrap}
+.sku-status.ok{background:#d1fae5;color:#065f46}
+.sku-status.missing{background:#fee2e2;color:#991b1b}
+.sku-status.warn{background:#fef3c7;color:#92400e}
+.sku-wrapper{position:relative}
+.sku-input{background:var(--white);border:1.5px solid var(--border);color:var(--text);padding:7px 10px;border-radius:var(--radius);font-size:.8rem;outline:none;width:100%;font-family:monospace}
+.sku-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,84,156,.08)}
+.sku-input.filled{border-color:#86efac}
+.sku-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--white);border:1.5px solid var(--blue);border-radius:var(--radius);z-index:9999;max-height:220px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,84,156,.15)}
+.sku-dropdown.open{display:block}
+.sku-option{padding:9px 14px;cursor:pointer;font-size:.79rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px}
+.sku-option:last-child{border-bottom:none}
+.sku-option:hover{background:var(--blue-light)}
+.sku-option-code{font-family:monospace;font-weight:700;color:var(--blue);font-size:.8rem}
+.sku-option-name{color:var(--muted);font-size:.72rem}
+.sku-tenant-badge{font-size:.63rem;background:var(--blue-light);color:var(--blue);padding:1px 5px;border-radius:4px;margin-left:4px;font-weight:600}
+
+/* CHECKLIST */
+.checklist{font-size:.82rem;line-height:2.2;color:var(--muted)}
+.checklist strong{color:var(--navy)}
+
+/* SECTION HEADER */
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.page-title{font-size:1.1rem;font-weight:700;color:var(--navy)}
+.page-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
+
 .hidden{display:none!important}
 #extracted-list{max-height:300px;overflow-y:auto}
-.sku-item{display:grid;grid-template-columns:1fr 260px 130px;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border)}
-.sku-item.matched{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.05)}
-.sku-item.unmatched{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.05)}
-.sku-name{font-size:.85rem;font-weight:600}
-.sku-status{font-size:.75rem;padding:3px 10px;border-radius:12px;text-align:center;font-weight:600;white-space:nowrap}
-.sku-status.ok{background:rgba(74,222,128,.15);color:var(--accent2)}
-.sku-status.missing{background:rgba(248,113,113,.15);color:var(--err)}
-.sku-status.warn{background:rgba(245,158,11,.15);color:var(--warn)}
-.sku-wrapper{position:relative}
-.sku-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:.82rem;outline:none;width:100%;font-family:monospace}
-.sku-input:focus{border-color:var(--accent)}
-.sku-input.filled{border-color:var(--accent2)}
-.sku-dropdown{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:6px;z-index:9999;max-height:220px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
-.sku-dropdown.open{display:block}
-.sku-option{padding:8px 12px;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:1px}
-.sku-option:last-child{border-bottom:none}
-.sku-option:hover{background:rgba(108,99,255,.2)}
-.sku-option-code{font-family:monospace;font-weight:700;color:var(--accent2);font-size:.82rem}
-.sku-option-name{color:var(--muted);font-size:.73rem}
-.sku-tenant-badge{font-size:.65rem;background:rgba(108,99,255,.2);color:var(--accent);padding:1px 5px;border-radius:4px;margin-left:4px}
-@media(max-width:700px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}.month-row{flex-direction:column}.sku-item{grid-template-columns:1fr}.steps-bar{overflow-x:auto}.step{white-space:nowrap}}
 </style>
 </head>
 <body>
+
+<!-- HEADER -->
 <div class="header">
-  <div class="logo">⬡</div>
-  <div><h1>M365 Billing Analyzer</h1><div style="font-size:.75rem;color:var(--muted)">Department cost breakdown from reseller invoice</div></div>
+  <div class="header-logo">
+    <img src="https://www.e2optics.com/wp-content/uploads/2023/05/e2-logo-svg-white_1.svg" alt="E2 Optics" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'">
+    <span id="logo-fallback" style="display:none;color:white;font-weight:700;font-size:1.2rem">E2 Optics</span>
+  </div>
+  <div class="header-divider"></div>
+  <div>
+    <div class="header-title">M365 Billing Analyzer</div>
+    <div class="header-sub">Department cost breakdown from reseller invoice</div>
+  </div>
   <div class="badge hidden" id="tenant-badge"></div>
 </div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar">
+  <div class="step active" id="s1"><span class="step-num">1</span> Connect M365</div>
+  <div class="step" id="s2"><span class="step-num">2</span> Upload Invoice</div>
+  <div class="step" id="s3"><span class="step-num">3</span> Map SKUs</div>
+  <div class="step" id="s4"><span class="step-num">4</span> Select Month</div>
+  <div class="step" id="s5"><span class="step-num">5</span> Results</div>
+</div>
+
 <div class="container">
-  <div class="steps">
-    <div class="step active" id="s1"><span class="step-num">1</span> Connect M365</div>
-    <div class="step" id="s2"><span class="step-num">2</span> Upload Invoice</div>
-    <div class="step" id="s3"><span class="step-num">3</span> Map SKUs</div>
-    <div class="step" id="s4"><span class="step-num">4</span> Select Month</div>
-    <div class="step" id="s5"><span class="step-num">5</span> Results</div>
-  </div>
 
   <!-- STEP 1 -->
   <div id="view-connect">
     <div class="card">
-      <h2>Connect to Microsoft 365</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px">Register an app in Azure AD with <strong>User.Read.All</strong> and <strong>Directory.Read.All</strong> delegated permissions. Use the <strong>Single-page application (SPA)</strong> platform type.</p>
+      <div class="card-title">Connect to Microsoft 365</div>
+      <div class="card-sub">Register an app in Azure AD with <strong>User.Read.All</strong> and <strong>Directory.Read.All</strong> delegated permissions. Use the <strong>Single-page application (SPA)</strong> platform type.</div>
       <div class="grid2">
         <div><label>Application (Client) ID</label><input id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
         <div><label>Directory (Tenant) ID</label><input id="tenantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
       </div>
-      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-primary" id="signin-btn" onclick="startLogin()">Sign in via Microsoft</button>
         <button class="btn btn-secondary btn-sm" onclick="document.getElementById('checklist').classList.toggle('hidden')">Azure AD Setup Guide</button>
       </div>
@@ -110,7 +186,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
     <div id="checklist" class="card hidden">
       <h3>Azure AD Setup Checklist</h3>
-      <div style="font-size:.83rem;line-height:2;color:var(--muted)">
+      <div class="checklist">
         ✓ portal.azure.com → App registrations → your app → Authentication<br>
         ✓ Remove any Web platform → Add platform → <strong>Single-page application (SPA)</strong><br>
         ✓ Redirect URI: <strong id="redirect-uri-val"></strong><br>
@@ -122,13 +198,13 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
   <!-- STEP 2 -->
   <div id="view-invoice" class="hidden">
     <div class="card">
-      <h2>Upload Reseller Invoice (PDF)</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">AI will extract license names, quantities and unit prices automatically.</p>
+      <div class="card-title">Upload Reseller Invoice</div>
+      <div class="card-sub">AI will extract license names, quantities and unit prices automatically from your PDF invoice.</div>
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfUpload(event)">
-        <div style="font-size:2rem;margin-bottom:8px">📄</div>
-        <div style="font-weight:600;margin-bottom:4px">Drop invoice PDF here or click to browse</div>
-        <div style="font-size:.82rem;color:var(--muted)">Supports any reseller invoice format</div>
+        <div class="drop-icon">📄</div>
+        <div style="font-weight:600;margin-bottom:4px;color:var(--navy)">Drop invoice PDF here or click to browse</div>
+        <div style="font-size:.78rem;color:var(--muted)">Supports any reseller invoice format</div>
       </div>
       <div id="pdf-processing" class="hidden" style="margin-top:16px">
         <div class="alert alert-info"><span class="loader"></span>&nbsp;Extracting text from PDF…</div>
@@ -139,7 +215,7 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
       </div>
       <div id="extraction-result" class="hidden" style="margin-top:16px">
         <div class="alert alert-ok" id="extraction-ok"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px">
           <h3 style="margin:0">Extracted Line Items</h3>
           <button class="btn btn-secondary btn-sm" onclick="addManualLine()">+ Add line</button>
         </div>
@@ -156,18 +232,18 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
   <!-- STEP 3 -->
   <div id="view-sku" class="hidden">
     <div class="card">
-      <h2>Map License SKUs</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">
+      <div class="card-title">Map License SKUs</div>
+      <div class="card-sub">
         Match each invoice line to its Microsoft SKU code. Type to search or pick from the dropdown.
-        <span style="color:var(--accent2)">● Green = matched in your tenant</span> &nbsp;
-        <span style="color:var(--warn)">● Amber = SKU set but not in tenant</span> &nbsp;
-        <span style="color:var(--err)">● Red = needs SKU</span>
-      </p>
+        <span style="color:var(--ok);font-weight:500">● Green = matched in your tenant</span> &nbsp;
+        <span style="color:#92400e;font-weight:500">● Amber = SKU set but not in tenant</span> &nbsp;
+        <span style="color:var(--err);font-weight:500">● Red = needs SKU</span>
+      </div>
       <div id="sku-mapper-list"></div>
       <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-primary" onclick="goToStep4()">Continue → Select Month</button>
         <button class="btn btn-secondary btn-sm" onclick="hide('view-sku');show('view-invoice');setStep(2)">← Back</button>
-        <span id="sku-warn" style="font-size:.8rem;color:var(--warn)"></span>
+        <span id="sku-warn" style="font-size:.78rem;color:#92400e;font-weight:500"></span>
       </div>
     </div>
   </div>
@@ -175,11 +251,11 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
   <!-- STEP 4 -->
   <div id="view-month" class="hidden">
     <div class="card">
-      <h2>Select Billing Month</h2>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">Users active for only part of the month will have their cost pro-rated based on their account creation date.</p>
+      <div class="card-title">Select Billing Month</div>
+      <div class="card-sub">Users active for only part of the month will have their cost pro-rated based on their account creation date in Microsoft 365.</div>
       <div class="month-row">
         <div><label>Billing Month</label><input type="month" id="billing-month"></div>
-        <div><button class="btn btn-primary" id="analyse-btn" onclick="runAnalysis()">Analyse →</button></div>
+        <div><button class="btn btn-primary" id="analyse-btn" onclick="runAnalysis()">Run Analysis →</button></div>
       </div>
       <div id="month-err" class="alert alert-err hidden"></div>
       <div id="month-progress" class="hidden">
@@ -191,10 +267,10 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
 
   <!-- STEP 5 -->
   <div id="view-results" class="hidden">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="section-header">
       <div>
-        <h2 style="margin-bottom:2px">Department Cost Breakdown</h2>
-        <div style="font-size:.8rem;color:var(--muted)" id="results-sub"></div>
+        <div class="page-title">Department Cost Breakdown</div>
+        <div class="page-sub" id="results-sub"></div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-secondary btn-sm" onclick="exportCsv()">⬇ Export CSV</button>
@@ -203,21 +279,27 @@ td{padding:10px 12px;border-bottom:1px solid rgba(46,50,80,.5)}tr:hover td{backg
     </div>
     <div class="summary-grid" id="summary-grid"></div>
     <div class="card" style="padding:0;overflow:hidden">
-      <table><thead><tr>
-        <th style="cursor:pointer" onclick="sortResults('dept')">Department<span id="sort-dept"></span></th>
-        <th style="cursor:pointer" onclick="sortResults('users')">Users<span id="sort-users"></span></th>
-        <th style="cursor:pointer" onclick="sortResults('full')">Full Month<span id="sort-full"></span></th>
-        <th style="cursor:pointer" onclick="sortResults('cost')">Pro-rated ↓<span id="sort-cost"> ↓</span></th>
-        <th></th>
-      </tr></thead>
-      <tbody id="results-tbody"></tbody></table>
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable sorted" onclick="sortResults('dept')" id="th-dept">Department<span id="sort-dept"> ↑</span></th>
+            <th class="sortable" onclick="sortResults('users')" id="th-users">Users<span id="sort-users"></span></th>
+            <th class="sortable" onclick="sortResults('full')" id="th-full">Full Month<span id="sort-full"></span></th>
+            <th class="sortable" onclick="sortResults('cost')" id="th-cost">Pro-rated<span id="sort-cost"></span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
     </div>
     <div id="unmatched-warn" class="alert alert-warn hidden" style="margin-top:16px"></div>
   </div>
+
 </div>
 
 <script>
 var accessToken=null,extractedLines=[],graphUsers=[],_exportData=null,tenantSkus=[];
+var _deptMap,_unmatched,_monthVal,_invoiceTotal,_sortCol='cost',_sortDir=-1;
 
 var SKU_LIST=[
   {sku:'O365_BUSINESS_ESSENTIALS',name:'Microsoft 365 Business Basic'},
@@ -266,7 +348,14 @@ function txt(id,v){document.getElementById(id).textContent=v}
 function fmt(n){return'$'+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function sc(val,label){return'<div class="summary-card"><div class="summary-val">'+val+'</div><div class="summary-label">'+label+'</div></div>'}
-function setStep(n){for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');else if(i===n)el.classList.add('active')}}
+function setStep(n){
+  for(var i=1;i<=5;i++){
+    var el=document.getElementById('s'+i);
+    el.classList.remove('active','done');
+    if(i<n)el.classList.add('done');
+    else if(i===n)el.classList.add('active');
+  }
+}
 
 var REDIRECT_URI=window.location.href.split('?')[0].split('#')[0];
 document.getElementById('redirect-uri-val').textContent=REDIRECT_URI;
@@ -299,11 +388,7 @@ async function handleRedirect(){
   var params=new URLSearchParams(window.location.search);
   var code=params.get('code'),state=params.get('state'),error=params.get('error');
   if(error){show('connect-err');txt('connect-err','Sign-in error: '+decodeURIComponent(params.get('error_description')||error));window.history.replaceState({},document.title,window.location.pathname);return}
-  if(!code){
-    // No redirect — try auto-restore from stored refresh token
-    await tryAutoRestore();
-    return;
-  }
+  if(!code){await tryAutoRestore();return}
   if(state!==localStorage.getItem('pkce_state')){show('connect-err');txt('connect-err','State mismatch — please try again.');window.history.replaceState({},document.title,window.location.pathname);return}
   var verifier=localStorage.getItem('pkce_verifier'),clientId=localStorage.getItem('client_id'),tenantId=localStorage.getItem('tenant_id');
   window.history.replaceState({},document.title,window.location.pathname);
@@ -322,12 +407,10 @@ async function handleRedirect(){
     if(!resp.ok)throw new Error(data.error_description||data.error||'Token exchange failed');
     accessToken=data.access_token;
     if(data.refresh_token)localStorage.setItem('refresh_token',data.refresh_token);
-    localStorage.setItem('client_id',clientId);
-    localStorage.setItem('tenant_id',tenantId);
+    localStorage.setItem('client_id',clientId);localStorage.setItem('tenant_id',tenantId);
     var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
     txt('tenant-badge',me.userPrincipalName||me.displayName||'Connected');
-    show('tenant-badge');
-    fetchTenantSkus();
+    show('tenant-badge');fetchTenantSkus();
     hide('connect-err');hide('view-connect');show('view-invoice');setStep(2);
     document.getElementById('clientId').value=clientId;
     document.getElementById('tenantId').value=tenantId;
@@ -339,16 +422,16 @@ async function tryAutoRestore(){
   var clientId=localStorage.getItem('client_id');
   var tenantId=localStorage.getItem('tenant_id');
   if(!refreshTok||!clientId||!tenantId)return;
-  // Pre-fill IDs
   document.getElementById('clientId').value=clientId;
   document.getElementById('tenantId').value=tenantId;
   var ok=await refreshToken();
   if(ok){
-    var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
-    txt('tenant-badge',me.userPrincipalName||me.displayName||'Reconnected');
-    show('tenant-badge');
-    fetchTenantSkus();
-    hide('view-connect');show('view-invoice');setStep(2);
+    try{
+      var me=await(await fetch('https://graph.microsoft.com/v1.0/me',{headers:{Authorization:'Bearer '+accessToken}})).json();
+      txt('tenant-badge',me.userPrincipalName||me.displayName||'Reconnected');
+      show('tenant-badge');fetchTenantSkus();
+      hide('view-connect');show('view-invoice');setStep(2);
+    }catch(e){}
   }
 }
 
@@ -419,7 +502,7 @@ async function extractWithAI(pdfText,fname){
     var lines=JSON.parse(raw);
     if(!Array.isArray(lines)||lines.length===0){
       extractedLines=[];renderExtracted();show('extraction-result');
-      txt('extraction-ok','No items found — add manually.');return;
+      txt('extraction-ok','No items found automatically — add them manually.');return;
     }
     extractedLines=lines;
     txt('extraction-ok','✓ Extracted '+lines.length+' line item'+(lines.length!==1?'s':'')+' from "'+fname+'"');
@@ -429,14 +512,14 @@ async function extractWithAI(pdfText,fname){
 
 function renderExtracted(){
   var el=document.getElementById('extracted-list');el.innerHTML='';
-  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem;padding:8px">No items yet.</p>';return}
+  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.82rem;padding:8px">No items yet.</p>';return}
   extractedLines.forEach(function(l,i){
     var total=l.totalPrice!=null?fmt(l.totalPrice):(l.qty&&l.unitPrice?fmt(l.qty*l.unitPrice):'—');
     var div=document.createElement('div');div.className='license-item';
     div.innerHTML='<div style="flex:1;min-width:0">'+
-      '<input style="background:transparent;border:none;font-weight:600;font-size:.85rem;color:var(--text);width:100%;padding:0" value="'+esc(l.name||'')+'" onchange="extractedLines['+i+'].name=this.value">'+
-      '<div style="font-size:.75rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:160px;padding:0" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.75rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
-      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div><button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.75rem">✕</button></div>';
+      '<input style="background:transparent;border:none;font-weight:600;font-size:.84rem;color:var(--navy);width:100%;padding:0;font-family:Poppins,sans-serif" value="'+esc(l.name||'')+'" onchange="extractedLines['+i+'].name=this.value">'+
+      '<div style="font-size:.73rem;color:var(--muted);margin-top:3px">SKU:&nbsp;<input style="background:transparent;border:none;color:var(--muted);font-size:.73rem;width:160px;padding:0;font-family:monospace" value="'+esc(l.sku||'')+'" onchange="extractedLines['+i+'].sku=this.value">&nbsp;Qty:&nbsp;<input type="number" style="background:transparent;border:none;color:var(--muted);font-size:.73rem;width:45px;padding:0" value="'+(l.qty!=null?l.qty:'')+'" onchange="extractedLines['+i+'].qty=+this.value">&nbsp;Unit&nbsp;$:&nbsp;<input type="number" step="0.01" style="background:transparent;border:none;color:var(--muted);font-size:.73rem;width:65px;padding:0" value="'+(l.unitPrice!=null?l.unitPrice:'')+'" onchange="extractedLines['+i+'].unitPrice=+this.value"></div></div>'+
+      '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div class="license-price">'+total+'</div><button onclick="removeLine('+i+')" style="background:none;border:none;color:var(--err);cursor:pointer;font-size:.73rem">✕</button></div>';
     el.appendChild(div);
   });
 }
@@ -445,8 +528,7 @@ function addManualLine(){extractedLines.push({name:'New License',sku:'',qty:1,un
 
 function goToSkuMapper(){
   if(!extractedLines.length&&!confirm('No lines added. Continue anyway?'))return;
-  hide('view-invoice');show('view-sku');setStep(3);
-  renderSkuMapper();
+  hide('view-invoice');show('view-sku');setStep(3);renderSkuMapper();
 }
 
 function getSkuOptions(query){
@@ -460,7 +542,7 @@ function getSkuOptions(query){
 
 function renderSkuMapper(){
   var el=document.getElementById('sku-mapper-list');el.innerHTML='';
-  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.83rem">No line items.</p>';return}
+  if(!extractedLines.length){el.innerHTML='<p style="color:var(--muted);font-size:.82rem">No line items.</p>';return}
   extractedLines.forEach(function(l,i){
     var hasSku=!!(l.sku&&l.sku.trim());
     var inTenant=hasSku&&tenantSkus.indexOf(l.sku.trim().toUpperCase())>=0;
@@ -471,7 +553,7 @@ function renderSkuMapper(){
     div.id='sku-item-'+i;
     div.innerHTML=
       '<div><div class="sku-name">'+esc(l.name||'Unnamed')+'</div>'+
-      '<div style="font-size:.75rem;color:var(--muted);margin-top:2px">'+(l.qty?l.qty+' users':'')+(l.unitPrice?' &nbsp;·&nbsp; '+fmt(l.unitPrice)+'/user':'')+'</div></div>'+
+      '<div style="font-size:.73rem;color:var(--muted);margin-top:2px">'+(l.qty?l.qty+' users':'')+(l.unitPrice?' &nbsp;·&nbsp; '+fmt(l.unitPrice)+'/user':'')+'</div></div>'+
       '<div class="sku-wrapper">'+
         '<input class="sku-input'+(hasSku?' filled':'')+'" id="sku-inp-'+i+'" placeholder="Type to search SKU…" value="'+esc(l.sku||'')+'" oninput="onSkuInput('+i+',this.value)" onfocus="onSkuFocus('+i+')" onblur="onSkuBlur('+i+')" autocomplete="off">'+
         '<div class="sku-dropdown" id="sku-dd-'+i+'">'+buildDropdownHtml(i,l.sku||'')+'</div>'+
@@ -491,32 +573,13 @@ function buildDropdownHtml(i,query){
   }).join('');
 }
 
-function onSkuInput(i,val){
-  extractedLines[i].sku=val.trim();
-  var dd=document.getElementById('sku-dd-'+i);
-  dd.innerHTML=buildDropdownHtml(i,val);
-  dd.classList.add('open');
-  updateSkuStatus(i,val.trim());
-}
-function onSkuFocus(i){
-  var val=document.getElementById('sku-inp-'+i).value;
-  var dd=document.getElementById('sku-dd-'+i);
-  dd.innerHTML=buildDropdownHtml(i,val);
-  dd.classList.add('open');
-}
+function onSkuInput(i,val){extractedLines[i].sku=val.trim();var dd=document.getElementById('sku-dd-'+i);dd.innerHTML=buildDropdownHtml(i,val);dd.classList.add('open');updateSkuStatus(i,val.trim())}
+function onSkuFocus(i){var val=document.getElementById('sku-inp-'+i).value;var dd=document.getElementById('sku-dd-'+i);dd.innerHTML=buildDropdownHtml(i,val);dd.classList.add('open')}
 function onSkuBlur(i){setTimeout(function(){var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open')},200)}
-function pickSku(i,sku){
-  extractedLines[i].sku=sku;
-  var inp=document.getElementById('sku-inp-'+i);if(inp)inp.value=sku;
-  var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open');
-  updateSkuStatus(i,sku);
-}
+function pickSku(i,sku){extractedLines[i].sku=sku;var inp=document.getElementById('sku-inp-'+i);if(inp)inp.value=sku;var dd=document.getElementById('sku-dd-'+i);if(dd)dd.classList.remove('open');updateSkuStatus(i,sku)}
 function updateSkuStatus(i,val){
-  var hasSku=!!(val&&val.length);
-  var inTenant=hasSku&&tenantSkus.indexOf(val.toUpperCase())>=0;
-  var item=document.getElementById('sku-item-'+i);
-  var status=document.getElementById('sku-status-'+i);
-  var inp=document.getElementById('sku-inp-'+i);
+  var hasSku=!!(val&&val.length);var inTenant=hasSku&&tenantSkus.indexOf(val.toUpperCase())>=0;
+  var item=document.getElementById('sku-item-'+i);var status=document.getElementById('sku-status-'+i);var inp=document.getElementById('sku-inp-'+i);
   if(!item)return;
   item.className='sku-item '+(hasSku?'matched':'unmatched');
   status.className='sku-status '+(hasSku?(inTenant?'ok':'warn'):'missing');
@@ -524,10 +587,7 @@ function updateSkuStatus(i,val){
   if(inp)inp.className='sku-input'+(hasSku?' filled':'');
   updateSkuWarning();
 }
-function updateSkuWarning(){
-  var missing=extractedLines.filter(function(l){return!l.sku||!l.sku.trim()}).length;
-  txt('sku-warn',missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU':'');
-}
+function updateSkuWarning(){var missing=extractedLines.filter(function(l){return!l.sku||!l.sku.trim()}).length;txt('sku-warn',missing>0?missing+' item'+(missing!==1?'s':'')+' still need a SKU':'')}
 
 function goToStep4(){
   hide('view-sku');show('view-month');setStep(4);
@@ -540,15 +600,12 @@ async function runAnalysis(){
   if(!monthVal){show('month-err');txt('month-err','Please select a billing month.');return}
   hide('month-err');show('month-progress');
   document.getElementById('analyse-btn').disabled=true;
-  // Refresh token before calling Graph API
   if(!accessToken){
     var ok=await refreshToken();
     if(!ok){
       hide('month-progress');document.getElementById('analyse-btn').disabled=false;
       show('month-err');txt('month-err','Session expired. Please sign in again.');
-      hide('view-month');hide('view-invoice');hide('view-sku');hide('view-results');
-      show('view-connect');setStep(1);
-      return;
+      hide('view-month');show('view-connect');setStep(1);return;
     }
   }
   var p=monthVal.split('-').map(Number),yr=p[0],mo=p[1];
@@ -557,14 +614,11 @@ async function runAnalysis(){
   setProg('Fetching users from Microsoft 365…',20);
   try{graphUsers=await fetchAllUsers()}
   catch(e){
-    // If token expired mid-session, try refresh once
-    if(e.message&&e.message.indexOf('token')>=0||e.message.indexOf('authorization')>=0){
+    if(e.message&&(e.message.indexOf('token')>=0||e.message.indexOf('authorization')>=0)){
       var refreshed=await refreshToken();
       if(refreshed){try{graphUsers=await fetchAllUsers()}catch(e2){hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e2.message);return}}
       else{hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Session expired. Please sign in again.');hide('view-month');show('view-connect');setStep(1);return}
-    } else {
-      hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e.message);return;
-    }
+    }else{hide('month-progress');document.getElementById('analyse-btn').disabled=false;show('month-err');txt('month-err','Graph API error: '+e.message);return}
   }
   setProg('Calculating costs…',70);
   var skuMap={};
@@ -610,11 +664,11 @@ async function fetchAllUsers(){
   return users;
 }
 
-var _sortCol='cost',_sortDir=-1,_deptMap,_unmatched,_monthVal,_invoiceTotal;
 function sortResults(col){
   if(_sortCol===col){_sortDir*=-1}else{_sortCol=col;_sortDir=col==='dept'?1:-1}
   buildTable();
 }
+
 function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   _deptMap=deptMap;_unmatched=unmatched;_monthVal=monthVal;_invoiceTotal=invoiceTotal;
   hide('month-progress');hide('view-month');show('view-results');setStep(5);
@@ -626,13 +680,16 @@ function renderResults(deptMap,unmatched,monthVal,invoiceTotal){
   var tPro=depts.reduce(function(s,d){return s+d[1].proRatedCost},0);
   var tUsers=depts.reduce(function(s,d){return s+d[1].users.length},0);
   var tPartial=depts.reduce(function(s,d){return s+d[1].users.filter(function(u){return u.isPartial}).length},0);
-  document.getElementById('summary-grid').innerHTML=sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
+  document.getElementById('summary-grid').innerHTML=
+    sc(fmt(tPro),'Pro-rated Total')+sc(fmt(tFull),'Full Month Total')+
+    sc(fmt(invoiceTotal),'Invoice Amount')+sc(tUsers,'Licensed Users')+
+    sc(tPartial,'Pro-rated Users')+sc(depts.length,'Departments');
   _sortCol='cost';_sortDir=-1;
   buildTable();
   var unmatchedKeys=Object.keys(unmatched);
   if(unmatchedKeys.length){
     show('unmatched-warn');
-    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
+    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.76rem">'+unmatchedKeys.join(', ')+'</code>';
   }else{hide('unmatched-warn')}
   _exportData={monthName:monthName};
 }
@@ -641,60 +698,56 @@ function buildTable(){
   var depts=Object.entries(_deptMap);
   depts.sort(function(a,b){
     var r=0;
-    if(_sortCol==='dept') r=a[0].localeCompare(b[0]);
-    else if(_sortCol==='users') r=a[1].users.length-b[1].users.length;
-    else if(_sortCol==='full') r=a[1].fullCost-b[1].fullCost;
+    if(_sortCol==='dept')r=a[0].localeCompare(b[0]);
+    else if(_sortCol==='users')r=a[1].users.length-b[1].users.length;
+    else if(_sortCol==='full')r=a[1].fullCost-b[1].fullCost;
     else r=a[1].proRatedCost-b[1].proRatedCost;
     return r*_sortDir;
   });
-  // Update header arrows
   ['dept','users','full','cost'].forEach(function(c){
     var el=document.getElementById('sort-'+c);
     if(el)el.textContent=_sortCol===c?(_sortDir===1?' ↑':' ↓'):'';
+    var th=document.getElementById('th-'+c);
+    if(th){th.classList.toggle('sorted',_sortCol===c)}
   });
   var tbody=document.getElementById('results-tbody');tbody.innerHTML='';
   depts.forEach(function(entry,di){
     var dept=entry[0],d=entry[1];
     var partial=d.users.filter(function(u){return u.isPartial}).length;
     var tr=document.createElement('tr');tr.className='dept-row';
-    tr.innerHTML='<td>'+esc(dept)+'</td><td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+
-      '</td><td>'+fmt(d.fullCost)+'</td><td><strong>'+fmt(d.proRatedCost)+'</strong></td>'+
-      '<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
+    tr.innerHTML='<td>'+esc(dept)+'</td>'
+      +'<td>'+d.users.length+(partial?' <span class="pill-amber">'+partial+' partial</span>':'')+'</td>'
+      +'<td>'+fmt(d.fullCost)+'</td>'
+      +'<td><strong>'+fmt(d.proRatedCost)+'</strong></td>'
+      +'<td><button class="expand-btn" onclick="toggleSub('+di+',this)">▸ Details</button></td>';
     tbody.appendChild(tr);
     var sub=document.createElement('tr');sub.id='sub-'+di;sub.className='hidden';
     var licRows=Object.values(d.licenses).map(function(l){
-      return'<tr class="sub-row"><td style="padding-left:28px">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="font-size:.75rem;color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
+      return'<tr class="sub-row"><td style="padding-left:28px;color:var(--blue);font-weight:500">↳ '+esc(l.name)+'</td><td>'+l.users+'</td><td>'+fmt(l.fullCost)+'</td><td>'+fmt(l.proRatedCost)+'</td><td style="color:var(--muted)">'+fmt(l.unitPrice)+'/user</td></tr>';
     }).join('');
     var userRows=d.users.map(function(u){
       return'<tr class="sub-row">'
-        +'<td style="padding-left:28px;color:var(--text)">👤 '+esc(u.name||'Unknown')+'</td>'
-        +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'Full month')+'</td>'
+        +'<td style="padding-left:28px">👤 '+esc(u.name||'Unknown')+'</td>'
+        +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'<span class="pill-ok">Full</span>')+'</td>'
         +'<td>'+fmt(u.fullCost)+'</td>'
         +'<td>'+fmt(u.proRatedCost)+'</td>'
-        +'<td></td>'
-        +'</tr>';
+        +'<td></td></tr>';
     }).join('');
-    sub.innerHTML='<td colspan="5" style="padding:0">'
-      +'<table style="width:100%"><tbody>'
-      +'<tr style="background:rgba(108,99,255,.06)"><td colspan="5" style="padding:6px 12px;font-size:.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Licenses</td></tr>'
+    sub.innerHTML='<td colspan="5" style="padding:0"><table style="width:100%"><tbody>'
+      +'<tr style="background:var(--blue-light)"><td colspan="5" style="padding:7px 14px;font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em">Licenses</td></tr>'
       +licRows
-      +'<tr style="background:rgba(108,99,255,.06)">'
-        +'<td colspan="4" style="padding:6px 12px;font-size:.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Users ('+d.users.length+')</td>'
-        +'<td style="padding:6px 12px;text-align:right"><input placeholder="Filter users…" oninput="filterUsers('+di+',this.value)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:6px;font-size:.75rem;outline:none;width:130px"></td>'
+      +'<tr style="background:var(--blue-light)">'
+        +'<td colspan="4" style="padding:7px 14px;font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.08em">Users ('+d.users.length+')</td>'
+        +'<td style="padding:7px 14px;text-align:right"><input placeholder="Filter users…" oninput="filterUsers('+di+',this.value)" style="background:var(--white);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;font-size:.72rem;outline:none;width:130px;font-family:Poppins,sans-serif"></td>'
       +'</tr>'
       +'<tbody id="user-rows-'+di+'">'+userRows+'</tbody>'
-      +'</tbody></table>'
-      +'</td>';
-    sub.setAttribute('data-users', JSON.stringify(d.users));
+      +'</tbody></table></td>';
+    sub.setAttribute('data-users',JSON.stringify(d.users));
     tbody.appendChild(sub);
   });
-  var unmatchedKeys=Object.keys(unmatched);
-  if(unmatchedKeys.length){
-    show('unmatched-warn');
-    document.getElementById('unmatched-warn').innerHTML='⚠️ <strong>'+unmatchedKeys.length+' SKU(s) unmatched</strong> — shown as $0.00. <button class="btn btn-secondary btn-sm" onclick="hide(\'view-results\');show(\'view-sku\');setStep(3);renderSkuMapper()" style="margin-left:8px">← Fix SKUs</button><br><code style="font-size:.78rem">'+unmatchedKeys.join(', ')+'</code>';
-  }else{hide('unmatched-warn')}
   _exportData={depts:depts,monthName:_exportData?_exportData.monthName:''};
 }
+
 function filterUsers(di,query){
   var q=query.toLowerCase().trim();
   var sub=document.getElementById('sub-'+di);
@@ -702,14 +755,14 @@ function filterUsers(di,query){
   var filtered=q?users.filter(function(u){return(u.name||'').toLowerCase().indexOf(q)>=0}):users;
   document.getElementById('user-rows-'+di).innerHTML=filtered.map(function(u){
     return'<tr class="sub-row">'
-      +'<td style="padding-left:28px;color:var(--text)">👤 '+esc(u.name||'Unknown')+'</td>'
-      +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'Full month')+'</td>'
+      +'<td style="padding-left:28px">👤 '+esc(u.name||'Unknown')+'</td>'
+      +'<td>'+(u.isPartial?'<span class="pill-amber">'+u.activeDays+'d</span>':'<span class="pill-ok">Full</span>')+'</td>'
       +'<td>'+fmt(u.fullCost)+'</td>'
       +'<td>'+fmt(u.proRatedCost)+'</td>'
-      +'<td></td>'
-      +'</tr>';
+      +'<td></td></tr>';
   }).join('');
 }
+
 function toggleSub(i,btn){var h=document.getElementById('sub-'+i).classList.toggle('hidden');btn.textContent=h?'▸ Details':'▾ Hide'}
 function exportCsv(){
   if(!_exportData)return;
